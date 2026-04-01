@@ -697,6 +697,51 @@
             border-color: var(--green)
         }
 
+        /* ── THREE-WAY TOGGLE ── */
+        .tw-wrap {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px
+        }
+
+        .tw-btn {
+            flex: 1;
+            padding: 9px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            color: var(--text3);
+            background: var(--bg3);
+            transition: all .15s;
+            user-select: none
+        }
+
+        .tw-btn:hover {
+            border-color: var(--border2);
+            color: var(--text)
+        }
+
+        .tw-btn.tw-sweep.active {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(245, 158, 11, .08)
+        }
+
+        .tw-btn.tw-smt.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(6, 182, 212, .08)
+        }
+
+        .tw-btn.tw-none.active {
+            border-color: var(--text3);
+            color: var(--text2);
+            background: rgba(255, 255, 255, .04)
+        }
+
         /* ── YES/NO TOGGLE ── */
         .yn-wrap {
             display: flex;
@@ -869,7 +914,7 @@
             border: 1px solid var(--border2);
             border-radius: 20px;
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             max-height: 92vh;
             overflow-y: auto;
             box-shadow: 0 40px 80px rgba(0, 0, 0, .7)
@@ -1138,7 +1183,7 @@
             }
         }
 
-        /* ── LINKED TRADE BANNER ── */
+        /* ── PM TRADE LINK BANNER ── */
         .pm-trade-link {
             background: rgba(59, 130, 246, .08);
             border: 1px solid rgba(59, 130, 246, .2);
@@ -1147,6 +1192,15 @@
             margin-bottom: 16px;
             font-size: 12px;
             color: var(--accent)
+        }
+
+        /* ── MODAL PM SECTION ── */
+        .modal-pm-section {
+            background: rgba(59, 130, 246, .04);
+            border: 1px solid rgba(59, 130, 246, .15);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 0
         }
 
         /* ── RESPONSIVE ── */
@@ -1552,226 +1606,14 @@
                 </div>
             </div>
 
-            <!-- ═══════════ PRE-MARKET ═══════════ -->
+            <!-- ═══════════ PRE-MARKET (Standalone view) ═══════════ -->
             <div class="page" id="page-pre-market">
                 <div class="topbar">
                     <div class="page-title-group">
                         <div class="page-title">Pre-Market</div>
                         <div class="page-sub">Daily Analysis Journal</div>
                     </div>
-                    <div class="topbar-actions">
-                        <input type="date" class="finput" id="pm-date" style="width:160px">
-                        <button class="btn btn-primary" id="save-pm-btn">Save Analysis</button>
-                    </div>
                 </div>
-
-                <!-- Trade linkage notice -->
-                <div id="pm-trade-link-notice" class="pm-trade-link" style="display:none">
-                    📎 This analysis will be linked to the trade for this date when saved.
-                </div>
-
-                <div class="g2 mb4">
-                    <!-- Section A -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">A · Pre-Market Analysis</div>
-                        </div>
-                        <div class="fg mb3">
-                            <div class="fgroup">
-                                <label class="flabel">HTF Bias</label>
-                                <div class="checklist" id="pm-htf-bias-chk" style="grid-template-columns:1fr 1fr 1fr">
-                                    <div class="chk" data-group="htf_bias" data-val="Bullish"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Bullish
-                                    </div>
-                                    <div class="chk" data-group="htf_bias" data-val="Bearish"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Bearish
-                                    </div>
-                                    <div class="chk" data-group="htf_bias" data-val="Neutral"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Neutral
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">Profile Type</label>
-                                <div class="checklist" id="pm-profile-chk" style="grid-template-columns:1fr 1fr">
-                                    <div class="chk" data-group="profile_type" data-val="Expansion"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Expansion
-                                    </div>
-                                    <div class="chk" data-group="profile_type" data-val="Ranging"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Ranging
-                                    </div>
-                                    <div class="chk" data-group="profile_type" data-val="Reversal"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Reversal
-                                    </div>
-                                    <div class="chk" data-group="profile_type" data-val="Retracement"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Retracement
-                                    </div>
-                                    <div class="chk" data-group="profile_type" data-val="Manipulation"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Manipulation
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">Key Level Present?</label>
-                                <div class="yn-wrap" id="pm-key-level-yn">
-                                    <div class="yn-btn yn-yes" onclick="setYN(this,'pm-key-level-yn')">Yes</div>
-                                    <div class="yn-btn yn-no" onclick="setYN(this,'pm-key-level-yn')">No</div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">Profile Outcome (Signal)</label>
-                                <div class="yn-wrap" id="pm-outcome-yn">
-                                    <div class="yn-btn yn-yes" onclick="setYN(this,'pm-outcome-yn')">TRADE</div>
-                                    <div class="yn-btn yn-no" onclick="setYN(this,'pm-outcome-yn')">AVOID</div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">PM Liquidity Taken?</label>
-                                <div class="yn-wrap" id="pm-liq-yn">
-                                    <div class="yn-btn yn-yes" onclick="setYN(this,'pm-liq-yn')">Yes (SMT)</div>
-                                    <div class="yn-btn yn-no" onclick="setYN(this,'pm-liq-yn')">Not Taken</div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">OHLC Verified?</label>
-                                <div class="yn-wrap" id="pm-ohlc-yn">
-                                    <div class="yn-btn yn-yes" onclick="setYN(this,'pm-ohlc-yn')">Yes</div>
-                                    <div class="yn-btn yn-no" onclick="setYN(this,'pm-ohlc-yn')">No</div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">Session / Kill Zone</label>
-                                <div class="checklist" style="grid-template-columns:1fr 1fr 1fr">
-                                    <div class="chk" data-group="session" data-val="London"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>London
-                                    </div>
-                                    <div class="chk" data-group="session" data-val="NY" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>NY
-                                    </div>
-                                    <div class="chk" data-group="session" data-val="Asian" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Asian
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">Premium / Discount</label>
-                                <div class="checklist" style="grid-template-columns:1fr 1fr 1fr">
-                                    <div class="chk" data-group="pd" data-val="Premium" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Premium
-                                    </div>
-                                    <div class="chk" data-group="pd" data-val="Discount" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Discount
-                                    </div>
-                                    <div class="chk" data-group="pd" data-val="Equilibrium"
-                                        onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Equil.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">DOL (Draw on Liquidity)</label>
-                                <input class="finput" id="pm-dol" placeholder="e.g. Previous day high">
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">Forex Factory News</label>
-                                <input class="finput" id="pm-ff" placeholder="High-impact events?">
-                            </div>
-                            <div class="fgroup full">
-                                <label class="flabel">Notes</label>
-                                <textarea class="finput" id="pm-notes"
-                                    placeholder="Pre-market observations..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section B + C -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">B · LTF Confluences</div>
-                        </div>
-                        <div class="fgroup mb3">
-                            <label class="flabel">LTF Liquidity Taken Before Entry?</label>
-                            <div class="yn-wrap" id="pm-ltf-liq-yn">
-                                <div class="yn-btn yn-yes" onclick="setYN(this,'pm-ltf-liq-yn')">Yes</div>
-                                <div class="yn-btn yn-no" onclick="setYN(this,'pm-ltf-liq-yn')">No</div>
-                            </div>
-                        </div>
-                        <div class="fgroup mb3">
-                            <label class="flabel">Key Level Significant?</label>
-                            <div class="yn-wrap" id="pm-ltf-kl-yn">
-                                <div class="yn-btn yn-yes" onclick="setYN(this,'pm-ltf-kl-yn')">Yes</div>
-                                <div class="yn-btn yn-no" onclick="setYN(this,'pm-ltf-kl-yn')">No</div>
-                            </div>
-                        </div>
-                        <div class="fgroup mb3">
-                            <label class="flabel">Candle Closure / Displacement (1m–3m)</label>
-                            <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
-                                <div class="chk" data-group="ltf_candle" data-val="Confirmed"
-                                    onclick="toggleSingle(this)">
-                                    <div class="chk-box"></div>Confirmed
-                                </div>
-                                <div class="chk" data-group="ltf_candle" data-val="Not confirmed"
-                                    onclick="toggleSingle(this)">
-                                    <div class="chk-box"></div>Not Conf.
-                                </div>
-                                <div class="chk" data-group="ltf_candle" data-val="Pending"
-                                    onclick="toggleSingle(this)">
-                                    <div class="chk-box"></div>Pending
-                                </div>
-                            </div>
-                        </div>
-                        <div class="fgroup mb3">
-                            <label class="flabel">Entry Activated</label>
-                            <div class="yn-wrap" id="pm-ltf-entry-yn">
-                                <div class="yn-btn yn-yes" onclick="setYN(this,'pm-ltf-entry-yn')">Yes</div>
-                                <div class="yn-btn yn-no" onclick="setYN(this,'pm-ltf-entry-yn')">Pending</div>
-                            </div>
-                        </div>
-
-                        <hr class="fdivider">
-                        <div class="card-title mb3" style="margin-bottom:16px;font-size:14px">C · Post-Market Analysis
-                        </div>
-                        <div class="fg">
-                            <div class="fgroup">
-                                <label class="flabel">MSB / BOS</label>
-                                <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
-                                    <div class="chk" data-group="msb" data-val="MSB" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>MSB
-                                    </div>
-                                    <div class="chk" data-group="msb" data-val="BOS" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>BOS
-                                    </div>
-                                    <div class="chk" data-group="msb" data-val="Neither" onclick="toggleSingle(this)">
-                                        <div class="chk-box"></div>Neither
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="fgroup">
-                                <label class="flabel">PSP (Precision Swing Point)?</label>
-                                <div class="yn-wrap" id="pm-psp-yn">
-                                    <div class="yn-btn yn-yes" onclick="setYN(this,'pm-psp-yn')">Yes</div>
-                                    <div class="yn-btn yn-no" onclick="setYN(this,'pm-psp-yn')">No</div>
-                                </div>
-                            </div>
-                            <div class="fgroup full">
-                                <label class="flabel">Trade Review</label>
-                                <textarea class="finput" id="pm-trade-review"
-                                    placeholder="How did price behave vs your plan?"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Previous Logs -->
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Previous Pre-Market Logs</div>
@@ -2040,7 +1882,9 @@
         </main>
     </div>
 
-    <!-- ═══════════ TRADE MODAL ═══════════ -->
+    <!-- ═══════════════════════════════════════════════
+     TRADE MODAL (includes embedded Pre-Market)
+═══════════════════════════════════════════════ -->
     <div class="overlay" id="trade-modal">
         <div class="modal">
             <div class="modal-head">
@@ -2048,6 +1892,8 @@
                 <button class="modal-close" onclick="closeModal('trade-modal')">✕</button>
             </div>
             <div class="modal-body">
+
+                <!-- ── SECTION 1: BASIC INFO ── -->
                 <div class="fsection">Basic Info</div>
                 <div class="fg mb3">
                     <div class="fgroup"><label class="flabel">Asset / Pair</label><input class="finput" id="t-asset"
@@ -2064,7 +1910,7 @@
                         </div>
                     </div>
                     <div class="fgroup"><label class="flabel">Entry Time</label><input type="datetime-local"
-                            class="finput" id="t-entry-time"></div>
+                            class="finput" id="t-entry-time" oninput="onEntryTimeChange()"></div>
                     <div class="fgroup"><label class="flabel">Exit Time</label><input type="datetime-local"
                             class="finput" id="t-exit-time"></div>
                     <div class="fgroup"><label class="flabel">SL Price</label><input type="number" class="finput"
@@ -2100,6 +1946,7 @@
                             id="t-account"></select></div>
                 </div>
 
+                <!-- ── SECTION 2: ENTRY MODEL ── -->
                 <hr class="fdivider">
                 <div class="fsection">Entry Model</div>
                 <div class="fgroup mb3">
@@ -2116,6 +1963,7 @@
                     </div>
                 </div>
 
+                <!-- ── SECTION 3: TRADE ANALYSIS ── -->
                 <hr class="fdivider">
                 <div class="fsection">Trade Analysis</div>
                 <div class="fg mb3">
@@ -2156,19 +2004,24 @@
                     </div>
                     <div class="fgroup">
                         <label class="flabel">Emotion Before</label>
-                        <select class="finput" id="t-emotion-before"></select>
+                        <div id="t-emotion-before-chk" class="checklist"
+                            style="grid-template-columns:1fr 1fr;margin-top:8px"></div>
                     </div>
                     <div class="fgroup">
                         <label class="flabel">Emotion During</label>
-                        <select class="finput" id="t-emotion-during"></select>
+                        <div id="t-emotion-during-chk" class="checklist"
+                            style="grid-template-columns:1fr 1fr;margin-top:8px"></div>
                     </div>
                     <div class="fgroup">
                         <label class="flabel">Mistake Made</label>
-                        <select class="finput" id="t-mistake"></select>
+                        <div id="t-mistake-chk" class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                        </div>
                     </div>
                     <div class="fgroup full">
-                        <label class="flabel">Confluences Used</label>
-                        <div id="t-confluences-check" class="checklist" style="margin-top:8px"></div>
+                        <label class="flabel">Confluences Used <span
+                                style="color:var(--text3);font-size:9px">(multi-select)</span></label>
+                        <div id="t-confluences-check" class="checklist"
+                            style="grid-template-columns:1fr 1fr 1fr;margin-top:8px"></div>
                     </div>
                     <div class="fgroup full">
                         <label class="flabel">Lesson Learned</label>
@@ -2181,18 +2034,245 @@
                     </div>
                 </div>
 
-                <!-- Pre-market link section -->
+                <!-- ── SECTION 4: PRE-MARKET ANALYSIS (Embedded) ── -->
                 <hr class="fdivider">
-                <div class="fsection">Pre-Market Link</div>
-                <div id="pm-link-preview" style="display:none" class="pm-trade-link mt2">
-                    📎 A pre-market analysis exists for this trade date. It will be automatically linked.
+                <div class="fsection" style="color:var(--accent)">📋 Pre-Market Analysis <span
+                        style="font-size:9px;color:var(--text3)">(saved together with this trade)</span></div>
+
+                <div id="pm-existing-notice" class="pm-trade-link" style="display:none;margin-bottom:16px">
+                    📎 A pre-market log already exists for this date and will be updated.
                 </div>
-                <p class="text-xs text-muted mt2">Pre-market analysis for the same date is automatically linked to this
-                    trade.</p>
+
+                <div class="modal-pm-section">
+                    <!-- A: Pre-Market -->
+                    <div
+                        style="font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px;font-weight:700">
+                        A · Pre-Market Analysis</div>
+                    <div class="fg mb3">
+                        <div class="fgroup">
+                            <label class="flabel">HTF Bias</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_htf_bias" data-val="Bullish"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Bullish
+                                </div>
+                                <div class="chk" data-group="pm_htf_bias" data-val="Bearish"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Bearish
+                                </div>
+                                <div class="chk" data-group="pm_htf_bias" data-val="Neutral"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Neutral
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Profile Type</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_profile_type" data-val="Expansion"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Expansion
+                                </div>
+                                <div class="chk" data-group="pm_profile_type" data-val="Ranging"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Ranging
+                                </div>
+                                <div class="chk" data-group="pm_profile_type" data-val="Reversal"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Reversal
+                                </div>
+                                <div class="chk" data-group="pm_profile_type" data-val="Retracement"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Retracement
+                                </div>
+                                <div class="chk" data-group="pm_profile_type" data-val="Manipulation"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Manipulation
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Key Level Present?</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_key_level" data-val="Yes" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Yes
+                                </div>
+                                <div class="chk" data-group="pm_key_level" data-val="No" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>No
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Profile Outcome (Signal)</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_outcome" data-val="TRADE" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>✅ TRADE
+                                </div>
+                                <div class="chk" data-group="pm_outcome" data-val="AVOID" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>🚫 AVOID
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">PM Liquidity</label>
+                            <!-- CHANGE 5: Three-way — Sweep / SMT / Not Taken -->
+                            <div class="tw-wrap mt1">
+                                <div class="tw-btn tw-sweep" data-group="pm_liq" data-val="Sweep"
+                                    onclick="toggleTW(this,'pm_liq')">Sweep</div>
+                                <div class="tw-btn tw-smt" data-group="pm_liq" data-val="SMT"
+                                    onclick="toggleTW(this,'pm_liq')">SMT</div>
+                                <div class="tw-btn tw-none" data-group="pm_liq" data-val="Not Taken"
+                                    onclick="toggleTW(this,'pm_liq')">Not Taken</div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">OHLC Verified?</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_ohlc" data-val="Yes" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Yes
+                                </div>
+                                <div class="chk" data-group="pm_ohlc" data-val="No" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>No
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Session / Kill Zone</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_session" data-val="London" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>London
+                                </div>
+                                <div class="chk" data-group="pm_session" data-val="NY" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>NY
+                                </div>
+                                <div class="chk" data-group="pm_session" data-val="Asian" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Asian
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Premium / Discount</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_pd" data-val="Premium" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Premium
+                                </div>
+                                <div class="chk" data-group="pm_pd" data-val="Discount" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Discount
+                                </div>
+                                <div class="chk" data-group="pm_pd" data-val="Equilibrium" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Equil.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup"><label class="flabel">DOL (Draw on Liquidity)</label><input class="finput"
+                                id="pm-t-dol" placeholder="e.g. Previous day high"></div>
+                        <div class="fgroup"><label class="flabel">Forex Factory News</label><input class="finput"
+                                id="pm-t-ff" placeholder="High-impact events?"></div>
+                        <div class="fgroup full"><label class="flabel">Pre-Market Notes</label><textarea class="finput"
+                                id="pm-t-notes" placeholder="Pre-market observations..."></textarea></div>
+                    </div>
+
+                    <!-- B: LTF Confluences -->
+                    <div
+                        style="font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px;margin-top:20px;font-weight:700">
+                        B · LTF Confluences</div>
+                    <div class="fg mb3">
+                        <div class="fgroup">
+                            <label class="flabel">LTF Liquidity Taken Before Entry?</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_ltf_liq" data-val="Yes" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Yes
+                                </div>
+                                <div class="chk" data-group="pm_ltf_liq" data-val="No" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>No
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Key Level Significant?</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_ltf_kl" data-val="Yes" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Yes
+                                </div>
+                                <div class="chk" data-group="pm_ltf_kl" data-val="No" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>No
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Candle Closure / Displacement (1m–3m)</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_ltf_candle" data-val="Confirmed"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Confirmed
+                                </div>
+                                <div class="chk" data-group="pm_ltf_candle" data-val="Not confirmed"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Not Conf.
+                                </div>
+                                <div class="chk" data-group="pm_ltf_candle" data-val="Pending"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Pending
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup">
+                            <label class="flabel">Entry Activated</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_ltf_entry" data-val="Yes" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Yes
+                                </div>
+                                <div class="chk" data-group="pm_ltf_entry" data-val="Pending"
+                                    onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Pending
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C: Post-Market -->
+                    <div
+                        style="font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px;margin-top:20px;font-weight:700">
+                        C · Post-Market Analysis</div>
+                    <div class="fg">
+                        <div class="fgroup">
+                            <label class="flabel">MSB / BOS</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_msb" data-val="MSB" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>MSB
+                                </div>
+                                <div class="chk" data-group="pm_msb" data-val="BOS" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>BOS
+                                </div>
+                                <div class="chk" data-group="pm_msb" data-val="Neither" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Neither
+                                </div>
+                            </div>
+                        </div>
+                        <!-- CHANGE 4: PSP as Yes/No checklist -->
+                        <div class="fgroup">
+                            <label class="flabel">PSP (Precision Swing Point)?</label>
+                            <div class="checklist" style="grid-template-columns:1fr 1fr;margin-top:8px">
+                                <div class="chk" data-group="pm_psp" data-val="Yes" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>Yes
+                                </div>
+                                <div class="chk" data-group="pm_psp" data-val="No" onclick="toggleSingle(this)">
+                                    <div class="chk-box"></div>No
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fgroup full">
+                            <label class="flabel">Trade Review</label>
+                            <textarea class="finput" id="pm-t-trade-review"
+                                placeholder="How did price behave vs your plan?"></textarea>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-foot">
                 <button class="btn btn-ghost" onclick="closeModal('trade-modal')">Cancel</button>
-                <button class="btn btn-primary" id="save-trade-btn">Save Trade</button>
+                <button class="btn btn-primary" id="save-trade-btn">Save Trade + Pre-Market</button>
             </div>
         </div>
     </div>
@@ -2220,6 +2300,7 @@
                             <option>ECN</option>
                         </select>
                     </div>
+                    <!-- CHANGE 3: Phase 3 added -->
                     <div class="fgroup"><label class="flabel">Stage</label>
                         <select class="finput" id="a-stage">
                             <option>Phase 1</option>
@@ -2342,6 +2423,21 @@
             document.querySelectorAll(`[data-group="${group}"]`).forEach(e => e.classList.remove('on', 'single-on'));
             el.classList.add('on', 'single-on');
         }
+        // Three-way toggle helper (for PM Liquidity)
+        function toggleTW(btn, group) {
+            document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        function getTW(group) {
+            const el = document.querySelector(`[data-group="${group}"].active`);
+            return el ? el.dataset.val : '';
+        }
+        function setTW(group, val) {
+            document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
+                b.classList.remove('active');
+                if (b.dataset.val === val) b.classList.add('active');
+            });
+        }
         function getChecked(containerId) {
             return [...document.querySelectorAll(`#${containerId} .chk.on`)].map(e => e.dataset.val);
         }
@@ -2354,29 +2450,14 @@
             const el = document.querySelector(`[data-group="${group}"][data-val="${val}"]`);
             if (el) el.classList.add('on', 'single-on');
         }
-        function setYN(btn, wrapperId) {
-            $(wrapperId).querySelectorAll('.yn-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        function getYN(wrapperId) {
-            const el = $(wrapperId);
-            if (!el) return '';
-            const active = el.querySelector('.yn-btn.active');
-            return active ? active.textContent.trim() : '';
-        }
-        function setYNVal(wrapperId, val) {
-            const el = $(wrapperId);
-            if (!el) return;
-            el.querySelectorAll('.yn-btn').forEach(b => {
-                b.classList.remove('active');
-                if (b.textContent.trim() === val) b.classList.add('active');
-            });
-        }
-        function resetYN(wrapperId) {
-            $(wrapperId)?.querySelectorAll('.yn-btn').forEach(b => b.classList.remove('active'));
-        }
         function resetSingle(group) {
             document.querySelectorAll(`[data-group="${group}"]`).forEach(e => e.classList.remove('on', 'single-on'));
+        }
+        // Set a multi-select checklist
+        function setChecked(containerId, vals) {
+            document.querySelectorAll(`#${containerId} .chk`).forEach(el => {
+                el.classList.toggle('on', (vals || []).includes(el.dataset.val));
+            });
         }
 
         // ════════════ AUTH ════════════
@@ -2457,10 +2538,9 @@
             await loadModelData();
             loadDashboard();
             const now = new Date();
-            $('pm-date').value = now.toISOString().split('T')[0];
+            $('pl-date').value = now.toISOString().split('T')[0];
             $('wr-week').value = now.toISOString().split('T')[0];
             $('mr-month').value = now.toISOString().slice(0, 7);
-            $('pl-date').value = now.toISOString().split('T')[0];
         }
 
         // ════════════ MODEL DATA ════════════
@@ -2487,13 +2567,33 @@
         }
 
         function populateTradeSelects() {
-            const eb = $('t-emotion-before'), ed = $('t-emotion-during');
-            const opts = '<option value="">Select...</option>' + (_models.emotions || []).map(m => `<option>${m.name}</option>`).join('');
-            eb.innerHTML = opts; ed.innerHTML = opts;
-            const mk = $('t-mistake');
-            mk.innerHTML = '<option value="">None</option>' + (_models.mistakes || []).map(m => `<option>${m.name}</option>`).join('');
+            // Emotion Before — checklist (single-select)
+            const eb = $('t-emotion-before-chk');
+            eb.innerHTML = (_models.emotions || []).map(m => `
+    <div class="chk" data-group="t_emotion_before" data-val="${m.name}" onclick="toggleSingle(this)">
+      <div class="chk-box"></div><span>${m.name}</span>
+    </div>`).join('');
+
+            // Emotion During — checklist (single-select)
+            const ed = $('t-emotion-during-chk');
+            ed.innerHTML = (_models.emotions || []).map(m => `
+    <div class="chk" data-group="t_emotion_during" data-val="${m.name}" onclick="toggleSingle(this)">
+      <div class="chk-box"></div><span>${m.name}</span>
+    </div>`).join('');
+
+            // Mistakes — checklist (single-select)
+            const mk = $('t-mistake-chk');
+            mk.innerHTML = `<div class="chk" data-group="t_mistake" data-val="" onclick="toggleSingle(this)"><div class="chk-box"></div>None</div>` +
+                (_models.mistakes || []).map(m => `
+    <div class="chk" data-group="t_mistake" data-val="${m.name}" onclick="toggleSingle(this)">
+      <div class="chk-box"></div><span>${m.name}</span>
+    </div>`).join('');
+
+            // Account dropdown
             const ac = $('t-account');
             ac.innerHTML = '<option value="">Select...</option>' + _accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+
+            // Confluences — multi-select checklist
             const cc = $('t-confluences-check');
             cc.innerHTML = (_models.confluences || []).map(c => `
     <div class="chk" data-val="${c.name}" onclick="toggleCheck(this)">
@@ -2678,12 +2778,18 @@
         });
 
         function clearTradeForm() {
-            ['t-asset', 't-sl', 't-tp', 't-rr-plan', 't-rr-actual', 't-risk', 't-pnl', 't-lesson', 't-loss-notes'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-            ['t-emotion-before', 't-emotion-during', 't-mistake', 't-account'].forEach(id => { const el = $(id); if (el) el.selectedIndex = 0; });
-            ['t_direction', 't_result', 't_entry_model', 't_session', 't_opening'].forEach(g => resetSingle(g));
+            ['t-asset', 't-sl', 't-tp', 't-rr-plan', 't-rr-actual', 't-risk', 't-pnl', 't-lesson', 't-loss-notes',
+                'pm-t-dol', 'pm-t-ff', 'pm-t-notes', 'pm-t-trade-review'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+            $('t-account').selectedIndex = 0;
+            ['t_direction', 't_result', 't_entry_model', 't_session', 't_opening',
+                't_emotion_before', 't_emotion_during', 't_mistake',
+                'pm_htf_bias', 'pm_profile_type', 'pm_key_level', 'pm_outcome', 'pm_ohlc', 'pm_session', 'pm_pd',
+                'pm_ltf_liq', 'pm_ltf_kl', 'pm_ltf_candle', 'pm_ltf_entry', 'pm_msb', 'pm_psp'].forEach(g => resetSingle(g));
+            // Reset three-way PM liquidity toggle
+            document.querySelectorAll('[data-group="pm_liq"]').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#t-confluences-check .chk').forEach(el => el.classList.remove('on'));
             $('loss-notes-section').style.display = 'none';
-            $('pm-link-preview').style.display = 'none';
+            $('pm-existing-notice').style.display = 'none';
             const now = new Date().toISOString().slice(0, 16);
             $('t-entry-time').value = now;
             $('t-exit-time').value = now;
@@ -2692,6 +2798,39 @@
         function onResultChange() {
             const r = getSingle('t_result');
             $('loss-notes-section').style.display = r === 'Loss' ? 'block' : 'none';
+        }
+
+        // When entry time changes, check for existing PM log for that date
+        async function onEntryTimeChange() {
+            const dateStr = $('t-entry-time').value.split('T')[0];
+            if (!dateStr || !currentUser) return;
+            const pmLogs = await getAll('pre_market_logs');
+            const existing = pmLogs.find(l => l.date === dateStr);
+            const notice = $('pm-existing-notice');
+            if (existing) {
+                notice.style.display = 'block';
+                // Pre-fill PM fields from existing log
+                setSingle('pm_htf_bias', existing.htf_bias || '');
+                setSingle('pm_profile_type', existing.profile_type || '');
+                setSingle('pm_key_level', existing.key_level || '');
+                setSingle('pm_outcome', existing.outcome || '');
+                setTW('pm_liq', existing.liquidity || '');
+                setSingle('pm_ohlc', existing.ohlc || '');
+                setSingle('pm_session', existing.session || '');
+                setSingle('pm_pd', existing.pd || '');
+                if ($('pm-t-dol')) $('pm-t-dol').value = existing.dol || '';
+                if ($('pm-t-ff')) $('pm-t-ff').value = existing.ff || '';
+                if ($('pm-t-notes')) $('pm-t-notes').value = existing.notes || '';
+                setSingle('pm_ltf_liq', existing.ltf_liq || '');
+                setSingle('pm_ltf_kl', existing.ltf_kl || '');
+                setSingle('pm_ltf_candle', existing.ltf_candle || '');
+                setSingle('pm_ltf_entry', existing.ltf_entry || '');
+                setSingle('pm_msb', existing.msb || '');
+                setSingle('pm_psp', existing.psp || '');
+                if ($('pm-t-trade-review')) $('pm-t-trade-review').value = existing.trade_review || '';
+            } else {
+                notice.style.display = 'none';
+            }
         }
 
         async function editTrade(id) {
@@ -2714,17 +2853,38 @@
             setSingle('t_entry_model', t.entry_model || '');
             setSingle('t_session', t.session || '');
             setSingle('t_opening', t.opening || '');
-            $('t-emotion-before').value = t.emotion_before || '';
-            $('t-emotion-during').value = t.emotion_during || '';
-            $('t-mistake').value = t.mistake || '';
+            setSingle('t_emotion_before', t.emotion_before || '');
+            setSingle('t_emotion_during', t.emotion_during || '');
+            setSingle('t_mistake', t.mistake || '');
             $('t-lesson').value = t.lesson || '';
             $('t-loss-notes').value = t.loss_notes || '';
             if (t.result === 'Loss') $('loss-notes-section').style.display = 'block';
-            (t.confluences || []).forEach(c => {
-                const el = document.querySelector(`#t-confluences-check [data-val="${c}"]`);
-                if (el) el.classList.add('on');
-            });
-            if (t.pm_linked) $('pm-link-preview').style.display = 'block';
+            setChecked('t-confluences-check', t.confluences || []);
+            // Load PM data if linked
+            if (t.pm_linked) {
+                const pmLogs = await getAll('pre_market_logs');
+                const pm = pmLogs.find(l => l.id === t.pm_linked) || pmLogs.find(l => l.date === t.trade_date);
+                if (pm) {
+                    setSingle('pm_htf_bias', pm.htf_bias || '');
+                    setSingle('pm_profile_type', pm.profile_type || '');
+                    setSingle('pm_key_level', pm.key_level || '');
+                    setSingle('pm_outcome', pm.outcome || '');
+                    setTW('pm_liq', pm.liquidity || '');
+                    setSingle('pm_ohlc', pm.ohlc || '');
+                    setSingle('pm_session', pm.session || '');
+                    setSingle('pm_pd', pm.pd || '');
+                    $('pm-t-dol').value = pm.dol || '';
+                    $('pm-t-ff').value = pm.ff || '';
+                    $('pm-t-notes').value = pm.notes || '';
+                    setSingle('pm_ltf_liq', pm.ltf_liq || '');
+                    setSingle('pm_ltf_kl', pm.ltf_kl || '');
+                    setSingle('pm_ltf_candle', pm.ltf_candle || '');
+                    setSingle('pm_ltf_entry', pm.ltf_entry || '');
+                    setSingle('pm_msb', pm.msb || '');
+                    setSingle('pm_psp', pm.psp || '');
+                    $('pm-t-trade-review').value = pm.trade_review || '';
+                }
+            }
             openModal('trade-modal');
         }
 
@@ -2735,42 +2895,94 @@
             loadTradeLog(); loadDashboard();
         }
 
+        // ════════════ SAVE TRADE + PRE-MARKET TOGETHER ════════════
         $('save-trade-btn').addEventListener('click', async () => {
             const asset = $('t-asset').value.trim();
             if (!asset) return toast('Asset/pair is required', 'error');
-            // Check if a pre-market log exists for this date
+
             const entryDate = $('t-entry-time').value.split('T')[0];
-            const pmLogs = await getAll('pre_market_logs');
-            const linkedPm = pmLogs.find(l => l.date === entryDate);
-            const data = {
-                asset,
-                direction: getSingle('t_direction'),
-                entry_time: $('t-entry-time').value, exit_time: $('t-exit-time').value,
-                sl: $('t-sl').value, tp: $('t-tp').value,
-                rr_plan: $('t-rr-plan').value, rr_actual: $('t-rr-actual').value,
-                risk: $('t-risk').value, pnl: $('t-pnl').value,
-                result: getSingle('t_result'), account: $('t-account').value,
-                entry_model: getSingle('t_entry_model'), session: getSingle('t_session'),
-                emotion_before: $('t-emotion-before').value, emotion_during: $('t-emotion-during').value,
-                opening: getSingle('t_opening'), mistake: $('t-mistake').value,
-                confluences: getChecked('t-confluences-check'),
-                lesson: $('t-lesson').value, loss_notes: $('t-loss-notes').value,
-                pm_linked: linkedPm ? linkedPm.id : '',
-                trade_date: entryDate
+
+            // Build PM data
+            const pmData = {
+                date: entryDate,
+                htf_bias: getSingle('pm_htf_bias'),
+                profile_type: getSingle('pm_profile_type'),
+                key_level: getSingle('pm_key_level'),
+                outcome: getSingle('pm_outcome'),
+                liquidity: getTW('pm_liq'),
+                ohlc: getSingle('pm_ohlc'),
+                session: getSingle('pm_session'),
+                pd: getSingle('pm_pd'),
+                dol: $('pm-t-dol').value,
+                ff: $('pm-t-ff').value,
+                notes: $('pm-t-notes').value,
+                ltf_liq: getSingle('pm_ltf_liq'),
+                ltf_kl: getSingle('pm_ltf_kl'),
+                ltf_candle: getSingle('pm_ltf_candle'),
+                ltf_entry: getSingle('pm_ltf_entry'),
+                msb: getSingle('pm_msb'),
+                psp: getSingle('pm_psp'),
+                trade_review: $('pm-t-trade-review').value
             };
+
             try {
-                if (editingTradeId) { await updateItem('trades', editingTradeId, data); toast('Trade updated', 'success'); }
-                else { await addItem('trades', data); toast('Trade saved' + (linkedPm ? ' & linked to pre-market' : ''), 'success'); }
-                // If PM log exists, update it with trade reference
-                if (linkedPm && !editingTradeId) {
-                    await updateItem('pre_market_logs', linkedPm.id, { trade_id: linkedPm.trade_id || '' });
+                // Check for existing PM log for this date
+                const pmLogs = await getAll('pre_market_logs');
+                const existingPm = pmLogs.find(l => l.date === entryDate);
+                let pmId = '';
+
+                if (existingPm) {
+                    // Update existing PM log
+                    await updateItem('pre_market_logs', existingPm.id, pmData);
+                    pmId = existingPm.id;
+                } else {
+                    // Create new PM log
+                    const pmRef = await addItem('pre_market_logs', pmData);
+                    pmId = pmRef.id;
                 }
+
+                // Build trade data
+                const tradeData = {
+                    asset,
+                    direction: getSingle('t_direction'),
+                    entry_time: $('t-entry-time').value,
+                    exit_time: $('t-exit-time').value,
+                    sl: $('t-sl').value,
+                    tp: $('t-tp').value,
+                    rr_plan: $('t-rr-plan').value,
+                    rr_actual: $('t-rr-actual').value,
+                    risk: $('t-risk').value,
+                    pnl: $('t-pnl').value,
+                    result: getSingle('t_result'),
+                    account: $('t-account').value,
+                    entry_model: getSingle('t_entry_model'),
+                    session: getSingle('t_session'),
+                    emotion_before: getSingle('t_emotion_before'),
+                    emotion_during: getSingle('t_emotion_during'),
+                    opening: getSingle('t_opening'),
+                    mistake: getSingle('t_mistake'),
+                    confluences: getChecked('t-confluences-check'),
+                    lesson: $('t-lesson').value,
+                    loss_notes: $('t-loss-notes').value,
+                    pm_linked: pmId,
+                    trade_date: entryDate
+                };
+
+                if (editingTradeId) {
+                    await updateItem('trades', editingTradeId, tradeData);
+                    toast('Trade & pre-market updated', 'success');
+                } else {
+                    await addItem('trades', tradeData);
+                    toast('Trade & pre-market saved together', 'success');
+                }
+
                 closeModal('trade-modal');
-                loadTradeLog(); loadDashboard();
+                loadTradeLog();
+                loadDashboard();
             } catch (e) { toast(e.message, 'error'); }
         });
 
-        // ════════════ PRE-MARKET ════════════
+        // ════════════ PRE-MARKET PAGE (View only — logs are saved via trade modal) ════════════
         async function loadPreMarket() {
             const logs = await getAll('pre_market_logs');
             const sorted = [...logs].sort((a, b) => {
@@ -2779,18 +2991,22 @@
                 return db - da;
             });
             const el = $('pm-logs-list');
-            if (!sorted.length) { el.innerHTML = '<div class="empty"><div class="empty-title">No logs yet</div></div>'; return; }
-            // Load trades for linking
+            if (!sorted.length) {
+                el.innerHTML = '<div class="empty"><div class="empty-icon">🌅</div><div class="empty-title">No pre-market logs yet</div><div class="empty-sub">Pre-market data is saved automatically when you log a trade</div></div>';
+                return;
+            }
             _trades = await getAll('trades');
             el.innerHTML = sorted.map(l => {
                 const linkedTrade = _trades.find(t => t.trade_date === l.date || t.pm_linked === l.id);
+                const liqBadge = l.liquidity === 'Sweep' ? 'b-amber' : l.liquidity === 'SMT' ? 'b-cyan' : '';
                 return `<div class="exp-card" id="pm-${l.id}">
       <div class="exp-head" onclick="toggleExp('pm-${l.id}')">
         <div class="row gap3">
           <span class="fw7" style="color:var(--accent)">${l.date || formatDate(l.createdAt)}</span>
           <span class="badge ${l.outcome === 'TRADE' ? 'b-green' : 'b-red'}">${l.outcome || '—'}</span>
+          ${l.liquidity ? `<span class="badge ${liqBadge}">${l.liquidity}</span>` : ''}
           <span class="text-muted text-xs">${l.htf_bias || ''} ${l.profile_type ? '· ' + l.profile_type : ''}</span>
-          ${linkedTrade ? '<span class="badge b-purple" style="font-size:9px">📎 ' + linkedTrade.asset + '</span>' : ''}
+          ${linkedTrade ? `<span class="badge b-purple" style="font-size:9px">📎 ${linkedTrade.asset}</span>` : ''}
         </div>
         <svg class="exp-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -2800,15 +3016,19 @@
           <div><div class="flabel">Profile Type</div><div>${l.profile_type || '—'}</div></div>
           <div><div class="flabel">Key Level</div><div>${l.key_level || '—'}</div></div>
           <div><div class="flabel">Outcome</div><div>${l.outcome || '—'}</div></div>
+          <div><div class="flabel">PM Liquidity</div><div>${l.liquidity || '—'}</div></div>
+          <div><div class="flabel">OHLC</div><div>${l.ohlc || '—'}</div></div>
           <div><div class="flabel">Session</div><div>${l.session || '—'}</div></div>
-          <div><div class="flabel">PSP Present?</div><div>${l.psp || '—'}</div></div>
+          <div><div class="flabel">PSP</div><div>${l.psp || '—'}</div></div>
           <div><div class="flabel">MSB/BOS</div><div>${l.msb || '—'}</div></div>
           <div><div class="flabel">DOL</div><div>${l.dol || '—'}</div></div>
+          <div><div class="flabel">LTF Candle</div><div>${l.ltf_candle || '—'}</div></div>
+          <div><div class="flabel">LTF Entry</div><div>${l.ltf_entry || '—'}</div></div>
           <div class="full"><div class="flabel">Notes</div><p style="font-size:13px;line-height:1.6;margin-top:4px">${l.notes || '—'}</p></div>
           <div class="full"><div class="flabel">Trade Review</div><p style="font-size:13px;line-height:1.6;margin-top:4px">${l.trade_review || '—'}</p></div>
-          ${linkedTrade ? `<div class="full"><div class="pm-trade-link">📎 Linked Trade: <b>${linkedTrade.asset}</b> · ${linkedTrade.result || '?'} · PnL: ${linkedTrade.pnl || '?'}</div></div>` : ''}
+          ${linkedTrade ? `<div class="full"><div class="pm-trade-link">📎 Linked Trade: <b>${linkedTrade.asset}</b> · <b>${linkedTrade.direction || ''}</b> · ${linkedTrade.result || '?'} · PnL: ${linkedTrade.pnl ? ((parseFloat(linkedTrade.pnl) >= 0 ? '+' : '') + parseFloat(linkedTrade.pnl).toFixed(2)) : '?'}</div></div>` : ''}
         </div>
-        <button class="btn btn-xs btn-danger mt3" onclick="deletePmLog('${l.id}')">Delete</button>
+        <button class="btn btn-xs btn-danger mt3" onclick="deletePmLog('${l.id}')">Delete Log</button>
       </div>
     </div>`;
             }).join('');
@@ -2817,29 +3037,10 @@
         function toggleExp(id) { const el = $(id); if (el) el.classList.toggle('open'); }
 
         async function deletePmLog(id) {
-            if (!confirm('Delete this log?')) return;
+            if (!confirm('Delete this pre-market log?')) return;
             await deleteItem('pre_market_logs', id);
             toast('Deleted', 'success'); loadPreMarket();
         }
-
-        $('save-pm-btn').addEventListener('click', async () => {
-            const date = $('pm-date').value;
-            const data = {
-                date,
-                htf_bias: getSingle('htf_bias'), profile_type: getSingle('profile_type'),
-                key_level: getYN('pm-key-level-yn'), outcome: getYN('pm-outcome-yn'),
-                liquidity: getYN('pm-liq-yn'), ohlc: getYN('pm-ohlc-yn'),
-                session: getSingle('session'), pd: getSingle('pd'),
-                dol: $('pm-dol').value, ff: $('pm-ff').value, notes: $('pm-notes').value,
-                ltf_liq: getYN('pm-ltf-liq-yn'), ltf_kl: getYN('pm-ltf-kl-yn'),
-                ltf_candle: getSingle('ltf_candle'), ltf_entry: getYN('pm-ltf-entry-yn'),
-                msb: getSingle('msb'), psp: getYN('pm-psp-yn'),
-                trade_review: $('pm-trade-review').value
-            };
-            await addItem('pre_market_logs', data);
-            toast('Pre-market analysis saved', 'success');
-            loadPreMarket();
-        });
 
         // ════════════ REVIEW ════════════
         async function loadReview() {
