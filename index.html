@@ -1,0 +1,3315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TradeLog Pro — Professional Trading Journal. Track trades, analyze performance, manage psychology, and improve your trading with data-driven insights.">
+    <meta name="theme-color" content="#0a0b0e">
+    <title>TradeLog Pro — Trading Journal</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import {
+            getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc,
+            doc, query, where, orderBy, onSnapshot, serverTimestamp
+        }
+            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // ============================================================
+        // 🔧 REPLACE WITH YOUR FIREBASE CONFIG
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6zHoY9SeYH7StFsMr42UJ5GbDF2ccY8w",
+            authDomain: "tradelog-pro-81cc2.firebaseapp.com",
+            projectId: "tradelog-pro-81cc2",
+            storageBucket: "tradelog-pro-81cc2.firebasestorage.app",
+            messagingSenderId: "807844666413",
+            appId: "1:807844666413:web:1a9b95c35695df33e36ca4",
+            measurementId: "G-TCELFS6PF7"
+        };
+        // ============================================================
+
+        // Auto-detect authDomain for Vercel/custom domains
+        // This allows Google Sign-In to work on any deployed domain
+        if (window.location.hostname !== 'localhost' 
+            && window.location.hostname !== '127.0.0.1'
+            && !window.location.hostname.endsWith('.firebaseapp.com')) {
+            firebaseConfig.authDomain = window.location.hostname;
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        window._fb = {
+            auth, db, provider, signInWithPopup, signOut, onAuthStateChanged,
+            collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy,
+            onSnapshot, serverTimestamp
+        };
+    </script>
+
+    <style>
+        :root {
+            --bg: #0a0b0e;
+            --bg2: #111318;
+            --bg3: #181c24;
+            --card: #1a1f2b;
+            --border: #252d3d;
+            --border2: #2e3a50;
+            --text: #e8eaf0;
+            --text2: #8b95aa;
+            --text3: #5a6478;
+            --accent: #00d4ff;
+            --accent2: #0099bb;
+            --green: #00e676;
+            --green2: #00a854;
+            --red: #ff4757;
+            --red2: #c0392b;
+            --amber: #ffd32a;
+            --purple: #7c3aed;
+            --orange: #ff6b35;
+            --teal: #00b4a0;
+            --radius: 8px;
+            --radius2: 12px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow2: 0 8px 40px rgba(0, 0, 0, 0.6);
+            --font-head: 'Syne', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-ui: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 99px;
+        }
+
+        /* ── AUTH SCREEN ── */
+        #auth-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.08) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.06) 0%, transparent 60%),
+                var(--bg);
+        }
+
+        .auth-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius2);
+            padding: 48px;
+            width: 420px;
+            text-align: center;
+            box-shadow: var(--shadow2);
+        }
+
+        .auth-logo {
+            font-family: var(--font-head);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .auth-sub {
+            color: var(--text2);
+            font-size: 12px;
+            margin-bottom: 36px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .auth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            transition: all .2s;
+        }
+
+        .auth-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .auth-btn svg {
+            flex-shrink: 0;
+        }
+
+        /* ── APP LAYOUT ── */
+        #app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 220px;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            font-family: var(--font-head);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-logo span {
+            color: var(--text2);
+            font-size: 10px;
+            font-family: var(--font-mono);
+            display: block;
+            margin-top: 2px;
+            letter-spacing: 2px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            padding: 8px 20px 4px;
+            font-size: 9px;
+            color: var(--text3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text2);
+            transition: all .15s;
+            border-left: 2px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            border-left-color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 11px;
+            color: var(--text);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .signout-btn {
+            font-size: 10px;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 4px;
+            transition: color .15s;
+        }
+
+        .signout-btn:hover {
+            color: var(--red);
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main {
+            margin-left: 220px;
+            min-height: 100vh;
+            background: var(--bg);
+        }
+
+        .page {
+            display: none;
+            padding: 32px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-family: var(--font-head);
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent2);
+            border-color: var(--accent2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text2);
+            border-color: var(--border2);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+
+        .btn-xs {
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        .btn-green {
+            background: var(--green2);
+            color: #000;
+            border-color: var(--green2);
+            font-weight: bold;
+        }
+
+        .btn-green:hover {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius2);
+            padding: 24px;
+        }
+
+        .card-sm {
+            padding: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-family: var(--font-head);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .card-subtitle {
+            font-size: 10px;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        /* ── GRID ── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        /* ── STAT CARDS ── */
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius2);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-color, var(--accent));
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text3);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: var(--font-head);
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-sub {
+            font-size: 10px;
+            color: var(--text3);
+            margin-top: 4px;
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 10px;
+            color: var(--text2);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            transition: border-color .15s;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-control::placeholder {
+            color: var(--text3);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* ── SECTION DIVIDER ── */
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        .section-label {
+            font-size: 9px;
+            color: var(--text3);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── TABLE ── */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text3);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text2);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        td .asset-name {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        td.pnl-green {
+            color: var(--green);
+        }
+
+        td.pnl-red {
+            color: var(--red);
+        }
+
+        td.result-win {
+            color: var(--green);
+        }
+
+        td.result-loss {
+            color: var(--red);
+        }
+
+        td.result-be {
+            color: var(--amber);
+        }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-green {
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--green);
+        }
+
+        .badge-red {
+            background: rgba(255, 71, 87, 0.12);
+            color: var(--red);
+        }
+
+        .badge-amber {
+            background: rgba(255, 211, 42, 0.12);
+            color: var(--amber);
+        }
+
+        .badge-blue {
+            background: rgba(0, 212, 255, 0.12);
+            color: var(--accent);
+        }
+
+        .badge-purple {
+            background: rgba(124, 58, 237, 0.12);
+            color: #a78bfa;
+        }
+
+        .badge-teal {
+            background: rgba(0, 180, 160, 0.12);
+            color: var(--teal);
+        }
+
+        /* ── TAGS ── */
+        .tags-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            color: var(--text2);
+            cursor: default;
+        }
+
+        .tag .tag-del {
+            cursor: pointer;
+            color: var(--text3);
+            margin-left: 2px;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .tag .tag-del:hover {
+            color: var(--red);
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius2);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow2);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg2);
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-family: var(--font-head);
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 4px;
+            transition: color .15s;
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text3);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all .15s;
+            margin-bottom: -1px;
+        }
+
+        .tab:hover {
+            color: var(--text);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* ── CONFLUENCES CHECKLIST ── */
+        .checklist {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text2);
+            transition: all .15s;
+            user-select: none;
+        }
+
+        .check-item:hover {
+            border-color: var(--border2);
+            color: var(--text);
+        }
+
+        .check-item.checked {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .check-item .check-box {
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid var(--border2);
+            border-radius: 3px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s;
+        }
+
+        .check-item.checked .check-box {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .check-item.checked .check-box::after {
+            content: '✓';
+            font-size: 10px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            height: 6px;
+            background: var(--bg3);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: var(--green);
+            transition: width .4s ease;
+        }
+
+        .progress-fill.amber {
+            background: var(--amber);
+        }
+
+        .progress-fill.red {
+            background: var(--red);
+        }
+
+        .progress-fill.accent {
+            background: var(--accent);
+        }
+
+        /* ── TRADE CARD ── */
+        .trade-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius2);
+            overflow: hidden;
+            transition: border-color .2s;
+        }
+
+        .trade-card:hover {
+            border-color: var(--border2);
+        }
+
+        .trade-card-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .trade-card-body {
+            padding: 18px;
+            display: none;
+        }
+
+        .trade-card.expanded .trade-card-body {
+            display: block;
+        }
+
+        .trade-card-chevron {
+            transition: transform .2s;
+            color: var(--text3);
+        }
+
+        .trade-card.expanded .trade-card-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* ── LOSS CAUSE TAG ── */
+        .cause-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg3);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .cause-count {
+            background: var(--red);
+            color: #fff;
+            border-radius: 99px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text3);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-state .empty-title {
+            font-family: var(--font-head);
+            font-size: 16px;
+            color: var(--text2);
+            margin-bottom: 8px;
+        }
+
+        .empty-state .empty-sub {
+            font-size: 12px;
+        }
+
+        /* ── TOAST ── */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-left: 3px solid var(--accent);
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            font-size: 12px;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            animation: slideIn .2s ease;
+            max-width: 300px;
+        }
+
+        .toast.error {
+            border-left-color: var(--red);
+        }
+
+        .toast.success {
+            border-left-color: var(--green);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ── LOADING ── */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1200px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 60px;
+                overflow: hidden;
+            }
+
+            .sidebar-logo span,
+            .sidebar-logo>span:first-child {
+                display: none;
+            }
+
+            .sidebar-logo {
+                padding: 16px;
+                font-size: 14px;
+                text-align: center;
+            }
+
+            .nav-item span {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+
+            .nav-section {
+                display: none;
+            }
+
+            .user-name,
+            .signout-btn {
+                display: none;
+            }
+
+            .main {
+                margin-left: 60px;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .checklist {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-4 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ── CHART PLACEHOLDER ── */
+        .chart-area {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text3);
+            font-size: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── MISC ── */
+        .flex {
+            display: flex;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .gap-2 {
+            gap: 8px;
+        }
+
+        .gap-3 {
+            gap: 12px;
+        }
+
+        .gap-4 {
+            gap: 16px;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+
+        .mt-3 {
+            margin-top: 12px;
+        }
+
+        .mt-4 {
+            margin-top: 16px;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+
+        .text-green {
+            color: var(--green);
+        }
+
+        .text-red {
+            color: var(--red);
+        }
+
+        .text-amber {
+            color: var(--amber);
+        }
+
+        .text-accent {
+            color: var(--accent);
+        }
+
+        .text-muted {
+            color: var(--text3);
+        }
+
+        .text-sm {
+            font-size: 11px;
+        }
+
+        .text-xs {
+            font-size: 10px;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .inline-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inline-edit-row input {
+            flex: 1;
+        }
+
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast-container"></div>
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-logo">TradeLog Pro</div>
+            <div class="auth-sub">Professional Trading Journal</div>
+            <button class="auth-btn" id="google-signin-btn">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                    <path fill="#4285F4"
+                        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.566 2.684-3.875 2.684-6.615z" />
+                    <path fill="#34A853"
+                        d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" />
+                    <path fill="#FBBC05"
+                        d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z" />
+                    <path fill="#EA4335"
+                        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" />
+                </svg>
+                Continue with Google
+            </button>
+            <p style="margin-top:20px; font-size:10px; color:var(--text3); line-height:1.8;">
+                Your data is synced in real-time via Firebase.<br>
+                Replace the Firebase config in this file to connect your project.
+            </p>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                TL<span style="display:inline">Pro</span>
+                <span>TRADING JOURNAL</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Main</div>
+                <div class="nav-item active" data-page="dashboard">
+                    <div class="nav-dot" style="background:var(--accent)"></div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="trade-log">
+                    <div class="nav-dot" style="background:var(--green)"></div>
+                    <span>Trade Log</span>
+                </div>
+                <div class="nav-section">Analysis</div>
+                <div class="nav-item" data-page="pre-market">
+                    <div class="nav-dot" style="background:var(--amber)"></div>
+                    <span>Pre-Market</span>
+                </div>
+                <div class="nav-item" data-page="review">
+                    <div class="nav-dot" style="background:var(--purple)"></div>
+                    <span>Review</span>
+                </div>
+                <div class="nav-item" data-page="psychology">
+                    <div class="nav-dot" style="background:var(--orange)"></div>
+                    <span>Psychology</span>
+                </div>
+                <div class="nav-section">Config</div>
+                <div class="nav-item" data-page="assets">
+                    <div class="nav-dot" style="background:var(--teal)"></div>
+                    <span>Assets</span>
+                </div>
+                <div class="nav-item" data-page="model">
+                    <div class="nav-dot" style="background:var(--red)"></div>
+                    <span>Model Config</span>
+                </div>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="sidebar-avatar">U</div>
+                <span class="user-name" id="sidebar-name">User</span>
+                <span class="signout-btn" id="signout-btn" title="Sign out">✕</span>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+
+            <!-- ═══════════════════════════════════════════ DASHBOARD ═══ -->
+            <div class="page active" id="page-dashboard">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Dashboard</div>
+                        <div class="page-subtitle">PERFORMANCE OVERVIEW</div>
+                    </div>
+                    <div class="page-actions">
+                        <select class="form-control btn" id="dash-period" style="width:140px">
+                            <option value="all">All Time</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid-4 mb-4" id="dash-stats">
+                    <div class="stat-card" style="--accent-color:var(--accent)">
+                        <div class="stat-label">Total Trades</div>
+                        <div class="stat-value" id="stat-total">—</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--green)">
+                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-value green" id="stat-wr">—</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--red)">
+                        <div class="stat-label">Max Drawdown</div>
+                        <div class="stat-value red" id="stat-dd">—</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--amber)">
+                        <div class="stat-label">Avg RR (Actual)</div>
+                        <div class="stat-value" id="stat-rr">—</div>
+                    </div>
+                </div>
+
+                <div class="grid-3 mb-4">
+                    <div class="stat-card" style="--accent-color:var(--green)">
+                        <div class="stat-label">Total PnL</div>
+                        <div class="stat-value" id="stat-pnl">—</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--purple)">
+                        <div class="stat-label">Consecutive W/L</div>
+                        <div class="stat-value" id="stat-streak">—</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--teal)">
+                        <div class="stat-label">Rule Violations</div>
+                        <div class="stat-value" id="stat-violations">—</div>
+                    </div>
+                </div>
+
+                <!-- Loss Causes + Best Setups -->
+                <div class="grid-2 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title text-red">⚠ Loss Causes Analysis</div>
+                                <div class="card-subtitle">Accumulated from all loss trade notes</div>
+                            </div>
+                        </div>
+                        <div id="loss-causes-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">🏆 Best Confluences</div>
+                                <div class="card-subtitle">Most used in winning trades</div>
+                            </div>
+                        </div>
+                        <div id="best-confluences-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly PnL + Recent Trades -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📅 Monthly PnL</div>
+                        </div>
+                        <div id="monthly-pnl-chart">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">🕒 Recent Trades</div>
+                            <span class="text-xs text-muted">Last 5</span>
+                        </div>
+                        <div id="recent-trades-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ TRADE LOG ═══ -->
+            <div class="page" id="page-trade-log">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Trade Log</div>
+                        <div class="page-subtitle">ALL RECORDED TRADES</div>
+                    </div>
+                    <div class="page-actions">
+                        <select class="form-control btn" id="log-filter-result" style="width:120px">
+                            <option value="">All Results</option>
+                            <option value="Win">Win</option>
+                            <option value="Loss">Loss</option>
+                            <option value="Breakeven">Breakeven</option>
+                        </select>
+                        <button class="btn btn-primary" id="add-trade-btn">+ New Trade</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Asset</th>
+                                    <th>Direction</th>
+                                    <th>Entry Model</th>
+                                    <th>Result</th>
+                                    <th>RR Plan</th>
+                                    <th>RR Act.</th>
+                                    <th>PnL</th>
+                                    <th>Confluences</th>
+                                    <th>Mistake</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trade-log-tbody">
+                                <tr>
+                                    <td colspan="11">
+                                        <div class="loading">
+                                            <div class="spinner"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ PRE-MARKET ═══ -->
+            <div class="page" id="page-pre-market">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Pre-Market</div>
+                        <div class="page-subtitle">DAILY ANALYSIS JOURNAL</div>
+                    </div>
+                    <div class="page-actions">
+                        <input type="date" class="form-control" id="pm-date" style="width:160px">
+                        <button class="btn btn-primary" id="save-pm-btn">Save Analysis</button>
+                    </div>
+                </div>
+                <div class="grid-2 mb-4">
+                    <!-- A: Pre-market Analysis -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">A. Pre-Market Analysis</div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">HTF Bias</label>
+                                <select class="form-control" id="pm-htf-bias">
+                                    <option value="">Select...</option>
+                                    <option>Bullish</option>
+                                    <option>Bearish</option>
+                                    <option>Neutral</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Profile Type</label>
+                                <select class="form-control" id="pm-profile-type">
+                                    <option value="">Select...</option>
+                                    <option>Expansion</option>
+                                    <option>Ranging</option>
+                                    <option>Reversal</option>
+                                    <option>Retracement</option>
+                                    <option>Manipulation</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Key Level Present?</label>
+                                <select class="form-control" id="pm-key-level">
+                                    <option value="">Select...</option>
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Profile Outcome (Signal)</label>
+                                <select class="form-control" id="pm-outcome">
+                                    <option value="">Select...</option>
+                                    <option>TRADE</option>
+                                    <option>AVOID</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PM Liquidity</label>
+                                <select class="form-control" id="pm-liquidity">
+                                    <option value="">Select...</option>
+                                    <option>Taken (SMT)</option>
+                                    <option>Not taken</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Session / Kill Zone</label>
+                                <select class="form-control" id="pm-session">
+                                    <option value="">Select...</option>
+                                    <option>London</option>
+                                    <option>NY</option>
+                                    <option>Asian</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Premium / Discount</label>
+                                <select class="form-control" id="pm-pd">
+                                    <option value="">Select...</option>
+                                    <option>Premium</option>
+                                    <option>Discount</option>
+                                    <option>Equilibrium</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">DOL (Draw on Liquidity)</label>
+                                <input class="form-control" id="pm-dol" placeholder="e.g. Previous day high">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">OHLC Verified?</label>
+                                <select class="form-control" id="pm-ohlc">
+                                    <option value="">Select...</option>
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Forex Factory News</label>
+                                <input class="form-control" id="pm-ff" placeholder="Any high-impact events?">
+                            </div>
+                            <div class="form-group full">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" id="pm-notes"
+                                    placeholder="Pre-market observations..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- B: LTF Confluences -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">B. LTF Confluences (Intraday)</div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">LTF Liquidity Taken Before Entry?</label>
+                            <select class="form-control" id="pm-ltf-liq">
+                                <option value="">Select...</option>
+                                <option>Yes</option>
+                                <option>No</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Key Level Significant?</label>
+                            <select class="form-control" id="pm-ltf-kl">
+                                <option value="">Select...</option>
+                                <option>Yes</option>
+                                <option>No</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Candle Closure / Displacement (1m–3m)</label>
+                            <select class="form-control" id="pm-ltf-candle">
+                                <option value="">Select...</option>
+                                <option>Confirmed</option>
+                                <option>Not confirmed</option>
+                                <option>Pending</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Entry Activated</label>
+                            <select class="form-control" id="pm-ltf-entry">
+                                <option value="">Select...</option>
+                                <option>Yes</option>
+                                <option>No</option>
+                                <option>Pending</option>
+                            </select>
+                        </div>
+                        <hr class="section-divider">
+                        <!-- C: Post-market -->
+                        <div class="card-title mb-4" style="margin-bottom:16px">C. Post-Market Analysis</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">MSB / BOS</label>
+                                <select class="form-control" id="pm-msb">
+                                    <option value="">Select...</option>
+                                    <option>MSB</option>
+                                    <option>BOS</option>
+                                    <option>Neither</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PSP (Precision Swing Point)</label>
+                                <input class="form-control" id="pm-psp" placeholder="Level / note">
+                            </div>
+                            <div class="form-group full">
+                                <label class="form-label">Trade Review (What played out vs plan)</label>
+                                <textarea class="form-control" id="pm-trade-review"
+                                    placeholder="How did price behave vs your plan?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Previous PM Logs -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Previous Pre-Market Logs</div>
+                    </div>
+                    <div id="pm-logs-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ REVIEW ═══ -->
+            <div class="page" id="page-review">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Review</div>
+                        <div class="page-subtitle">WEEKLY & MONTHLY ANALYSIS</div>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" id="add-review-btn">+ New Review</button>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="weekly-review">Weekly</div>
+                    <div class="tab" data-tab="monthly-review">Monthly</div>
+                    <div class="tab" data-tab="rules-checklist">Rules Checklist</div>
+                </div>
+
+                <!-- Weekly tab -->
+                <div id="tab-weekly-review">
+                    <div class="grid-2 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Weekly Review Entry</div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Week of</label>
+                                <input type="date" class="form-control" id="wr-week">
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">What Worked</label>
+                                <textarea class="form-control" id="wr-worked"
+                                    placeholder="Setups, confluences that worked..."></textarea>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">What Didn't Work</label>
+                                <textarea class="form-control" id="wr-didnt"
+                                    placeholder="Mistakes, patterns to avoid..."></textarea>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Improvement Notes</label>
+                                <textarea class="form-control" id="wr-improve"
+                                    placeholder="Next week action items..."></textarea>
+                            </div>
+                            <button class="btn btn-primary w-full" id="save-weekly-btn">Save Weekly Review</button>
+                        </div>
+                        <!-- Trade list for this week -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Trades This Period</div>
+                                <span class="text-xs text-muted">With confluences</span>
+                            </div>
+                            <div id="review-trades-list">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Previous Weekly Reviews</div>
+                        </div>
+                        <div id="weekly-reviews-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly tab -->
+                <div id="tab-monthly-review" style="display:none">
+                    <div class="grid-2 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Monthly Review Entry</div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Month</label>
+                                <input type="month" class="form-control" id="mr-month">
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Overall Analysis</label>
+                                <textarea class="form-control" id="mr-analysis"
+                                    placeholder="Monthly performance analysis..."></textarea>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Goals for Next Month</label>
+                                <textarea class="form-control" id="mr-goals"
+                                    placeholder="Trading targets and goals..."></textarea>
+                            </div>
+                            <button class="btn btn-primary w-full" id="save-monthly-btn">Save Monthly Review</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Monthly Stats</div>
+                            </div>
+                            <div id="monthly-stats-review">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Previous Monthly Reviews</div>
+                        </div>
+                        <div id="monthly-reviews-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rules checklist tab -->
+                <div id="tab-rules-checklist" style="display:none">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Pre-Trade Rules Checklist</div>
+                            <button class="btn btn-sm btn-outline" id="add-rule-btn">+ Add Rule</button>
+                        </div>
+                        <div id="rules-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ PSYCHOLOGY ═══ -->
+            <div class="page" id="page-psychology">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Psychology</div>
+                        <div class="page-subtitle">MINDSET & EMOTIONAL LOG</div>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" id="add-psych-btn">+ Log Today</button>
+                    </div>
+                </div>
+                <div class="grid-3 mb-4">
+                    <div class="stat-card" style="--accent-color:var(--green)">
+                        <div class="stat-label">Avg Mindset Rating</div>
+                        <div class="stat-value green" id="psych-avg-rating">—</div>
+                        <div class="stat-sub">Out of 10</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--purple)">
+                        <div class="stat-label">Total Logs</div>
+                        <div class="stat-value" id="psych-total-logs">—</div>
+                    </div>
+                    <div class="stat-card" style="--accent-color:var(--amber)">
+                        <div class="stat-label">Goals Set</div>
+                        <div class="stat-value" id="psych-goals">—</div>
+                    </div>
+                </div>
+                <!-- All trades with confluences for psych review -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="card-title">All Trades — Emotional State & Confluences</div>
+                    </div>
+                    <div id="psych-trades-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Psych logs -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Psychology Journal</div>
+                    </div>
+                    <div id="psych-logs-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ ASSETS ═══ -->
+            <div class="page" id="page-assets">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Assets</div>
+                        <div class="page-subtitle">FUNDED & LIVE ACCOUNTS</div>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-outline" id="add-funded-btn">+ Add Funded</button>
+                        <button class="btn btn-primary" id="add-live-btn">+ Add Live</button>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <!-- Funded -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title text-accent">Funded Accounts</div>
+                                <div class="card-subtitle">Prop firms / Challenges</div>
+                            </div>
+                        </div>
+                        <div id="funded-accounts-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Live -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title text-green">Live Accounts</div>
+                                <div class="card-subtitle">Personal / Broker accounts</div>
+                            </div>
+                        </div>
+                        <div id="live-accounts-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ MODEL CONFIG ═══ -->
+            <div class="page" id="page-model">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Model Config</div>
+                        <div class="page-subtitle">MANAGE YOUR TRADING MODEL PARAMETERS</div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <!-- Entry Models -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Entry Models</div>
+                            <button class="btn btn-sm btn-outline" id="add-entry-model-btn">+ Add</button>
+                        </div>
+                        <div id="entry-models-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Confluences -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Confluences</div>
+                            <button class="btn btn-sm btn-outline" id="add-confluence-btn">+ Add</button>
+                        </div>
+                        <div id="confluences-model-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mistakes -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Mistakes / Rule Violations</div>
+                            <button class="btn btn-sm btn-outline" id="add-mistake-btn">+ Add</button>
+                        </div>
+                        <div id="mistakes-model-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Emotional States -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Emotional States</div>
+                            <button class="btn btn-sm btn-outline" id="add-emotion-btn">+ Add</button>
+                        </div>
+                        <div id="emotions-model-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sessions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Sessions / Kill Zones</div>
+                            <button class="btn btn-sm btn-outline" id="add-session-btn">+ Add</button>
+                        </div>
+                        <div id="sessions-model-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- HTF Setups -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Profile Outcome Rules</div>
+                            <button class="btn btn-sm btn-outline" id="add-htf-btn">+ Add</button>
+                        </div>
+                        <div id="htf-model-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ═══════════ TRADE MODAL ═══ -->
+    <div class="modal-overlay" id="trade-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="trade-modal-title">New Trade</div>
+                <button class="modal-close" onclick="closeModal('trade-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="section-label">Basic Info</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Asset / Pair</label>
+                        <input class="form-control" id="t-asset" placeholder="e.g. GBPUSD">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Direction</label>
+                        <select class="form-control" id="t-direction">
+                            <option>Long</option>
+                            <option>Short</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Entry Time</label>
+                        <input type="datetime-local" class="form-control" id="t-entry-time">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Exit Time</label>
+                        <input type="datetime-local" class="form-control" id="t-exit-time">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SL Price</label>
+                        <input type="number" class="form-control" id="t-sl" placeholder="Stop loss">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">TP Price</label>
+                        <input type="number" class="form-control" id="t-tp" placeholder="Take profit">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">RR (Planned)</label>
+                        <input type="number" step="0.1" class="form-control" id="t-rr-plan" placeholder="e.g. 2.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">RR (Achieved)</label>
+                        <input type="number" step="0.1" class="form-control" id="t-rr-actual" placeholder="e.g. 1.8">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Risk % per Trade</label>
+                        <input type="number" step="0.1" class="form-control" id="t-risk" placeholder="e.g. 1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PnL (auto or manual)</label>
+                        <input type="number" step="0.01" class="form-control" id="t-pnl" placeholder="e.g. 150.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Result</label>
+                        <select class="form-control" id="t-result">
+                            <option>Win</option>
+                            <option>Loss</option>
+                            <option>Breakeven</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account</label>
+                        <select class="form-control" id="t-account"></select>
+                    </div>
+                </div>
+                <hr class="section-divider">
+                <div class="section-label">Analysis</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Entry Model</label>
+                        <select class="form-control" id="t-entry-model"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Session</label>
+                        <select class="form-control" id="t-session"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Emotional State (Before)</label>
+                        <select class="form-control" id="t-emotion-before"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Emotional State (During)</label>
+                        <select class="form-control" id="t-emotion-during"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Opening Prices Marked?</label>
+                        <select class="form-control" id="t-opening">
+                            <option value="">Select...</option>
+                            <option>Yes - Weekly</option>
+                            <option>Yes - Daily</option>
+                            <option>Yes - Both</option>
+                            <option>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mistake Made</label>
+                        <select class="form-control" id="t-mistake"></select>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Confluences Used (select multiple)</label>
+                        <div id="t-confluences-check" class="checklist" style="margin-top:8px"></div>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Lesson Learned</label>
+                        <textarea class="form-control" id="t-lesson"
+                            placeholder="Key takeaway from this trade..."></textarea>
+                    </div>
+                    <div class="form-group full" id="loss-notes-section" style="display:none">
+                        <label class="form-label" style="color:var(--red)">⚠ Loss Notes (causes of loss)</label>
+                        <textarea class="form-control" id="t-loss-notes"
+                            placeholder="Why did this trade lose? Be specific. These are tracked in the dashboard loss analysis..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('trade-modal')">Cancel</button>
+                <button class="btn btn-primary" id="save-trade-btn">Save Trade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ ASSET MODAL ═══ -->
+    <div class="modal-overlay" id="asset-modal">
+        <div class="modal" style="max-width:500px">
+            <div class="modal-header">
+                <div class="modal-title" id="asset-modal-title">Add Account</div>
+                <button class="modal-close" onclick="closeModal('asset-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="a-type">
+                <div class="form-group mb-4">
+                    <label class="form-label">Prop Firm / Broker Name</label>
+                    <input class="form-control" id="a-name" placeholder="e.g. FTMO, MFF, IC Markets">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Account Size ($)</label>
+                        <input type="number" class="form-control" id="a-size" placeholder="e.g. 100000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Type</label>
+                        <select class="form-control" id="a-account-type">
+                            <option>Instant</option>
+                            <option>Pro</option>
+                            <option>Normal</option>
+                            <option>Standard</option>
+                            <option>ECN</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stage</label>
+                        <select class="form-control" id="a-stage">
+                            <option>Phase 1</option>
+                            <option>Phase 2</option>
+                            <option>Funded</option>
+                            <option>N/A</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Leverage</label>
+                        <input class="form-control" id="a-leverage" placeholder="e.g. 1:100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current Equity ($)</label>
+                        <input type="number" class="form-control" id="a-equity" placeholder="Current balance">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Daily Loss ($)</label>
+                        <input type="number" class="form-control" id="a-daily-loss">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('asset-modal')">Cancel</button>
+                <button class="btn btn-primary" id="save-asset-btn">Save Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ PSYCH LOG MODAL ═══ -->
+    <div class="modal-overlay" id="psych-modal">
+        <div class="modal" style="max-width:560px">
+            <div class="modal-header">
+                <div class="modal-title">Psychology Log</div>
+                <button class="modal-close" onclick="closeModal('psych-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="pl-date">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mindset Rating (1-10)</label>
+                        <input type="number" min="1" max="10" class="form-control" id="pl-rating" placeholder="7">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Daily Mindset Notes</label>
+                        <textarea class="form-control" id="pl-notes"
+                            placeholder="How are you feeling today? Any biases or emotional state to record..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Weekly Goal</label>
+                        <input class="form-control" id="pl-weekly-goal" placeholder="e.g. Follow entry rules strictly">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Monthly Goal</label>
+                        <input class="form-control" id="pl-monthly-goal" placeholder="e.g. Achieve 60%+ win rate">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('psych-modal')">Cancel</button>
+                <button class="btn btn-primary" id="save-psych-btn">Save Log</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ REVIEW MODAL ═══ -->
+    <div class="modal-overlay" id="review-modal">
+        <div class="modal" style="max-width:500px">
+            <div class="modal-header">
+                <div class="modal-title" id="review-modal-title">Rule</div>
+                <button class="modal-close" onclick="closeModal('review-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Rule / Checklist Item</label>
+                    <input class="form-control" id="rule-text"
+                        placeholder="e.g. Wait for HTF confirmation before entry">
+                </div>
+                <div class="form-group mt-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-control" id="rule-cat">
+                        <option>Entry</option>
+                        <option>Risk</option>
+                        <option>Mindset</option>
+                        <option>Pre-market</option>
+                        <option>Post-trade</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('review-modal')">Cancel</button>
+                <button class="btn btn-primary" id="save-rule-btn">Save Rule</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ════════════════════════════════════════════════════════
+        //  UTILITIES
+        // ════════════════════════════════════════════════════════
+        let currentUser = null;
+        let fb = null;
+        let editingTradeId = null;
+        let editingAssetId = null;
+        let assetType = 'funded';
+
+        // Cached data
+        let _trades = [];
+        let _models = {};
+        let _accounts = [];
+
+        const $ = id => document.getElementById(id);
+        const toast = (msg, type = 'info') => {
+            const el = document.createElement('div');
+            el.className = `toast ${type}`;
+            el.textContent = msg;
+            $('toast-container').appendChild(el);
+            setTimeout(() => el.remove(), 3500);
+        };
+
+        function openModal(id) { $(id).classList.add('open'); }
+        function closeModal(id) { $(id).classList.remove('open'); }
+
+        function formatDate(ts) {
+            if (!ts) return '—';
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        function formatDateShort(ts) {
+            if (!ts) return '—';
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        }
+
+        const pnlClass = v => v > 0 ? 'pnl-green' : v < 0 ? 'pnl-red' : '';
+        const resultClass = r => r === 'Win' ? 'result-win' : r === 'Loss' ? 'result-loss' : 'result-be';
+        const resultBadge = r => r === 'Win' ? 'badge-green' : r === 'Loss' ? 'badge-red' : 'badge-amber';
+
+        // ════════════════════════════════════════════════════════
+        //  AUTH
+        // ════════════════════════════════════════════════════════
+        function waitForFb(cb, tries = 0) {
+            if (window._fb) { fb = window._fb; cb(); }
+            else if (tries < 30) setTimeout(() => waitForFb(cb, tries + 1), 200);
+            else toast('Firebase failed to load. Check your config.', 'error');
+        }
+
+        waitForFb(() => {
+            fb.onAuthStateChanged(fb.auth, user => {
+                if (user) {
+                    currentUser = user;
+                    $('auth-screen').style.display = 'none';
+                    $('app').style.display = 'block';
+                    $('sidebar-name').textContent = user.displayName || user.email;
+                    const av = $('sidebar-avatar');
+                    if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}">`;
+                    else av.textContent = (user.displayName || 'U')[0].toUpperCase();
+                    initApp();
+                } else {
+                    $('auth-screen').style.display = 'flex';
+                    $('app').style.display = 'none';
+                    currentUser = null;
+                }
+            });
+        });
+
+        $('google-signin-btn').addEventListener('click', () => {
+            if (!fb) return toast('Firebase not ready. Check config.', 'error');
+            fb.signInWithPopup(fb.auth, fb.provider).catch(e => toast(e.message, 'error'));
+        });
+        $('signout-btn').addEventListener('click', () => fb.signOut(fb.auth));
+
+        // ════════════════════════════════════════════════════════
+        //  NAVIGATION
+        // ════════════════════════════════════════════════════════
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                item.classList.add('active');
+                const page = item.dataset.page;
+                $(`page-${page}`).classList.add('active');
+                if (page === 'dashboard') loadDashboard();
+                if (page === 'trade-log') loadTradeLog();
+                if (page === 'pre-market') loadPreMarket();
+                if (page === 'review') loadReview();
+                if (page === 'psychology') loadPsychology();
+                if (page === 'assets') loadAssets();
+                if (page === 'model') loadModel();
+            });
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const group = tab.closest('.tabs');
+                group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabId = tab.dataset.tab;
+                ['weekly-review', 'monthly-review', 'rules-checklist'].forEach(id => {
+                    $(`tab-${id}`).style.display = id === tabId ? 'block' : 'none';
+                });
+                if (tabId === 'monthly-review') loadMonthlyReviewStats();
+                if (tabId === 'rules-checklist') loadRules();
+            });
+        });
+
+        // ════════════════════════════════════════════════════════
+        //  FIREBASE HELPERS
+        // ════════════════════════════════════════════════════════
+        const userCol = (col) => fb.collection(fb.db, 'users', currentUser.uid, col);
+
+        async function getAll(col, ...constraints) {
+            const q = constraints.length
+                ? fb.query(userCol(col), ...constraints)
+                : userCol(col);
+            const snap = await fb.getDocs(q);
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+        async function addItem(col, data) {
+            return fb.addDoc(userCol(col), { ...data, createdAt: fb.serverTimestamp() });
+        }
+        async function updateItem(col, id, data) {
+            return fb.updateDoc(fb.doc(fb.db, 'users', currentUser.uid, col, id), data);
+        }
+        async function deleteItem(col, id) {
+            return fb.deleteDoc(fb.doc(fb.db, 'users', currentUser.uid, col, id));
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  INIT
+        // ════════════════════════════════════════════════════════
+        async function initApp() {
+            await loadModelData();
+            loadDashboard();
+            // Set default dates
+            const now = new Date();
+            $('pm-date').value = now.toISOString().split('T')[0];
+            $('wr-week').value = now.toISOString().split('T')[0];
+            $('mr-month').value = now.toISOString().slice(0, 7);
+            $('pl-date').value = now.toISOString().split('T')[0];
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  MODEL DATA (cached)
+        // ════════════════════════════════════════════════════════
+        const DEFAULT_MODELS = {
+            entry_models: ['FVG', 'OB', 'Breaker', 'MSB', 'BOS', 'Sweep'],
+            confluences: ['HTF Bias Aligned', 'LTF Liquidity Taken', 'Key Level Present', 'Candle Displacement', 'DOL Aligned', 'Session KZ', 'SMT Divergence', 'OB Mitigation', 'FVG Fill', 'Premium/Discount'],
+            mistakes: ['FOMO Entry', 'Early Entry', 'Ignored HTF', 'Wrong Direction', 'Oversized Position', 'No SL', 'Moved SL', 'Took Revenge Trade', 'Emotional Exit'],
+            emotions: ['Calm & Focused', 'Slightly Nervous', 'Overconfident', 'Fearful', 'Frustrated', 'FOMO', 'Neutral', 'Excited'],
+            sessions: ['London', 'New York', 'Asian', 'London-NY Overlap'],
+            htf_setups: ['Expansion + Key Level = Reversal (TRADE)', 'Ranging + No Key Level = Manip (AVOID)', 'Reversal + No Key Level = Retrace (AVOID)', 'Retracement + Key Level = Expansion (TRADE)', 'Expansion + No Key Level = Retrace (AVOID)', 'Ranging + Key Level = Expansion (TRADE)', 'Manipulation Profile = Expansion (TRADE)', 'Reversal + Key Level = Range (AVOID)']
+        };
+
+        async function loadModelData() {
+            _models = {};
+            for (const key of Object.keys(DEFAULT_MODELS)) {
+                const items = await getAll(key);
+                if (items.length === 0) {
+                    // seed defaults
+                    for (const name of DEFAULT_MODELS[key]) {
+                        await addItem(key, { name });
+                    }
+                    _models[key] = DEFAULT_MODELS[key].map((name, i) => ({ id: `seed_${i}`, name }));
+                } else {
+                    _models[key] = items;
+                }
+            }
+            // Load accounts for trade modal
+            const funded = await getAll('funded_accounts');
+            const live = await getAll('live_accounts');
+            _accounts = [...funded.map(a => ({ ...a, type: 'funded' })), ...live.map(a => ({ ...a, type: 'live' }))];
+            populateTradeModalSelects();
+        }
+
+        function populateTradeModalSelects() {
+            // Entry model
+            const em = $('t-entry-model');
+            em.innerHTML = '<option value="">Select...</option>' + (_models.entry_models || []).map(m => `<option>${m.name}</option>`).join('');
+            // Session
+            const sess = $('t-session');
+            sess.innerHTML = '<option value="">Select...</option>' + (_models.sessions || []).map(m => `<option>${m.name}</option>`).join('');
+            // Emotions
+            const eb = $('t-emotion-before');
+            const ed = $('t-emotion-during');
+            const opts = '<option value="">Select...</option>' + (_models.emotions || []).map(m => `<option>${m.name}</option>`).join('');
+            eb.innerHTML = opts; ed.innerHTML = opts;
+            // Mistakes
+            const mk = $('t-mistake');
+            mk.innerHTML = '<option value="">None</option>' + (_models.mistakes || []).map(m => `<option>${m.name}</option>`).join('');
+            // Accounts
+            const ac = $('t-account');
+            ac.innerHTML = '<option value="">Select...</option>' + _accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+            // Confluences checklist
+            const cc = $('t-confluences-check');
+            cc.innerHTML = (_models.confluences || []).map(c => `
+    <div class="check-item" data-val="${c.name}" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span>${c.name}</span>
+    </div>`).join('');
+        }
+
+        function toggleCheck(el) {
+            el.classList.toggle('checked');
+        }
+        function getChecked(containerId) {
+            return [...document.querySelectorAll(`#${containerId} .check-item.checked`)].map(el => el.dataset.val);
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  DASHBOARD
+        // ════════════════════════════════════════════════════════
+        async function loadDashboard() {
+            const period = $('dash-period').value;
+            _trades = await getAll('trades');
+
+            // Filter by period
+            let trades = _trades;
+            if (period !== 'all') {
+                const now = new Date();
+                trades = trades.filter(t => {
+                    if (!t.createdAt) return false;
+                    const d = t.createdAt.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+                    if (period === 'week') {
+                        const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+                        return d >= weekAgo;
+                    }
+                    if (period === 'month') {
+                        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                    }
+                });
+            }
+
+            const total = trades.length;
+            const wins = trades.filter(t => t.result === 'Win').length;
+            const losses = trades.filter(t => t.result === 'Loss').length;
+            const wr = total ? ((wins / total) * 100).toFixed(1) : 0;
+            const pnl = trades.reduce((s, t) => s + (parseFloat(t.pnl) || 0), 0);
+            const rrVals = trades.filter(t => t.rr_actual).map(t => parseFloat(t.rr_actual));
+            const avgRR = rrVals.length ? (rrVals.reduce((a, b) => a + b, 0) / rrVals.length).toFixed(2) : '—';
+
+            // Max drawdown (simplified: max consecutive loss sum)
+            let maxDD = 0, curDD = 0;
+            trades.forEach(t => {
+                const p = parseFloat(t.pnl) || 0;
+                if (p < 0) { curDD += p; if (curDD < maxDD) maxDD = curDD; }
+                else curDD = 0;
+            });
+
+            // Streak
+            let streak = 0, streakType = '';
+            const sorted = [...trades].sort((a, b) => {
+                const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+                const db2 = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+                return db2 - da;
+            });
+            for (const t of sorted) {
+                if (streak === 0) { streakType = t.result; streak = 1; }
+                else if (t.result === streakType) streak++;
+                else break;
+            }
+
+            // Rule violations
+            const violations = trades.filter(t => t.mistake && t.mistake !== '' && t.mistake !== 'None').length;
+
+            $('stat-total').textContent = total;
+            $('stat-wr').textContent = wr + '%';
+            $('stat-dd').textContent = maxDD ? maxDD.toFixed(2) : '0';
+            $('stat-rr').textContent = avgRR;
+            $('stat-pnl').textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2);
+            $('stat-pnl').className = 'stat-value ' + (pnl >= 0 ? 'green' : 'red');
+            $('stat-streak').textContent = streak ? `${streak}× ${streakType}` : '—';
+            $('stat-streak').className = 'stat-value ' + (streakType === 'Win' ? 'green' : streakType === 'Loss' ? 'red' : '');
+            $('stat-violations').textContent = violations;
+
+            // Loss causes
+            renderLossCauses(trades.filter(t => t.result === 'Loss'));
+
+            // Best confluences (in winning trades)
+            renderBestConfluences(trades.filter(t => t.result === 'Win'));
+
+            // Monthly PnL chart
+            renderMonthlyPnlChart(trades);
+
+            // Recent trades
+            renderRecentTrades(sorted.slice(0, 5));
+        }
+
+        $('dash-period').addEventListener('change', loadDashboard);
+
+        function renderLossCauses(lossTrades) {
+            const el = $('loss-causes-list');
+            if (!lossTrades.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">No losses recorded</div></div>';
+                return;
+            }
+            // Collect all loss notes + mistakes
+            const causeMap = {};
+            lossTrades.forEach(t => {
+                // Mistakes as causes
+                if (t.mistake && t.mistake !== 'None' && t.mistake !== '') {
+                    causeMap[t.mistake] = (causeMap[t.mistake] || 0) + 1;
+                }
+                // Parse loss notes for key phrases
+                if (t.loss_notes) {
+                    const notes = t.loss_notes.toLowerCase();
+                    // Extract lines/sentences as individual causes
+                    t.loss_notes.split(/[.\n,;]+/).forEach(line => {
+                        const l = line.trim();
+                        if (l.length > 5 && l.length < 80) {
+                            causeMap[l] = (causeMap[l] || 0) + 1;
+                        }
+                    });
+                }
+            });
+
+            const sorted = Object.entries(causeMap).sort((a, b) => b[1] - a[1]);
+            if (!sorted.length) {
+                el.innerHTML = '<p class="text-muted text-sm" style="padding:12px">No specific causes recorded in loss notes yet.</p>';
+                return;
+            }
+            el.innerHTML = sorted.map(([cause, count]) => `
+    <div class="cause-item">
+      <span class="text-sm">${cause}</span>
+      <span class="cause-count">${count}</span>
+    </div>`).join('');
+        }
+
+        function renderBestConfluences(winTrades) {
+            const el = $('best-confluences-list');
+            const map = {};
+            winTrades.forEach(t => {
+                (t.confluences || []).forEach(c => { map[c] = (map[c] || 0) + 1; });
+            });
+            const sorted = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            if (!sorted.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-title">No data yet</div></div>';
+                return;
+            }
+            const max = sorted[0][1];
+            el.innerHTML = sorted.map(([name, count]) => `
+    <div style="margin-bottom:10px">
+      <div class="flex justify-between items-center" style="margin-bottom:4px">
+        <span class="text-sm">${name}</span>
+        <span class="text-xs text-muted">${count}×</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill accent" style="width:${(count / max * 100).toFixed(0)}%"></div></div>
+    </div>`).join('');
+        }
+
+        function renderMonthlyPnlChart(trades) {
+            const el = $('monthly-pnl-chart');
+            const months = {};
+            trades.forEach(t => {
+                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || 0);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                months[key] = (months[key] || 0) + (parseFloat(t.pnl) || 0);
+            });
+            const sorted = Object.entries(months).sort((a, b) => a[0].localeCompare(b[0])).slice(-6);
+            if (!sorted.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-title">No trade data</div></div>';
+                return;
+            }
+            const max = Math.max(...sorted.map(([, v]) => Math.abs(v)), 1);
+            el.innerHTML = `<div style="display:flex;align-items:flex-end;gap:8px;height:160px;padding:0 8px">` +
+                sorted.map(([month, pnl]) => {
+                    const h = Math.max(4, (Math.abs(pnl) / max) * 140);
+                    const color = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+                    const label = month.slice(5);
+                    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <span style="font-size:9px;color:var(--text3)">${pnl >= 0 ? '+' : ''}${pnl.toFixed(0)}</span>
+        <div style="width:100%;height:${h}px;background:${color};border-radius:3px 3px 0 0;opacity:0.85"></div>
+        <span style="font-size:9px;color:var(--text3)">${label}</span>
+      </div>`;
+                }).join('') + '</div>';
+        }
+
+        function renderRecentTrades(trades) {
+            const el = $('recent-trades-list');
+            if (!trades.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-title">No trades yet</div></div>';
+                return;
+            }
+            el.innerHTML = trades.map(t => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;color:var(--text);font-weight:500">${t.asset || '—'}</div>
+        <div style="font-size:10px;color:var(--text3)">${formatDateShort(t.createdAt)} · ${t.direction || ''}</div>
+      </div>
+      <div style="text-align:right">
+        <span class="badge ${resultBadge(t.result)}">${t.result || '—'}</span>
+        <div style="font-size:11px;margin-top:4px" class="${pnlClass(parseFloat(t.pnl))}">${t.pnl ? (parseFloat(t.pnl) >= 0 ? '+' : '') + parseFloat(t.pnl).toFixed(2) : '—'}</div>
+      </div>
+    </div>`).join('');
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  TRADE LOG
+        // ════════════════════════════════════════════════════════
+        async function loadTradeLog() {
+            _trades = await getAll('trades');
+            renderTradeTable(_trades);
+        }
+
+        $('log-filter-result').addEventListener('change', () => {
+            const val = $('log-filter-result').value;
+            renderTradeTable(val ? _trades.filter(t => t.result === val) : _trades);
+        });
+
+        function renderTradeTable(trades) {
+            const tbody = $('trade-log-tbody');
+            if (!trades.length) {
+                tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No trades yet</div><div class="empty-sub">Click "+ New Trade" to add your first trade</div></div></td></tr>';
+                return;
+            }
+            const sorted = [...trades].sort((a, b) => {
+                const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+                const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+                return db - da;
+            });
+            tbody.innerHTML = sorted.map(t => `
+    <tr>
+      <td>${formatDateShort(t.createdAt)}</td>
+      <td><span class="asset-name">${t.asset || '—'}</span></td>
+      <td><span class="badge ${t.direction === 'Long' ? 'badge-green' : 'badge-red'}">${t.direction || '—'}</span></td>
+      <td>${t.entry_model || '—'}</td>
+      <td class="${resultClass(t.result)}">${t.result || '—'}</td>
+      <td>${t.rr_plan || '—'}</td>
+      <td>${t.rr_actual || '—'}</td>
+      <td class="${pnlClass(parseFloat(t.pnl))}">${t.pnl ? (parseFloat(t.pnl) >= 0 ? '+' : '') + parseFloat(t.pnl).toFixed(2) : '—'}</td>
+      <td style="max-width:180px">
+        <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${(t.confluences || []).slice(0, 3).map(c => `<span class="badge badge-blue" style="font-size:9px">${c}</span>`).join('')}
+          ${(t.confluences || []).length > 3 ? `<span class="badge badge-teal" style="font-size:9px">+${t.confluences.length - 3}</span>` : ''}
+        </div>
+      </td>
+      <td style="color:var(--amber);font-size:11px">${t.mistake || '—'}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-xs btn-outline" onclick="editTrade('${t.id}')">Edit</button>
+          <button class="btn btn-xs btn-danger" onclick="deleteTrade('${t.id}')">Del</button>
+        </div>
+      </td>
+    </tr>`).join('');
+        }
+
+        // Add/Edit trade
+        $('add-trade-btn').addEventListener('click', () => {
+            editingTradeId = null;
+            $('trade-modal-title').textContent = 'New Trade';
+            clearTradeForm();
+            openModal('trade-modal');
+        });
+
+        function clearTradeForm() {
+            ['t-asset', 't-sl', 't-tp', 't-rr-plan', 't-rr-actual', 't-risk', 't-pnl', 't-lesson', 't-loss-notes', 't-dol', 't-opening'].forEach(id => {
+                const el = $(id); if (el) el.value = '';
+            });
+            ['t-direction', 't-result', 't-entry-model', 't-session', 't-emotion-before', 't-emotion-during', 't-mistake', 't-account'].forEach(id => {
+                const el = $(id); if (el) el.selectedIndex = 0;
+            });
+            document.querySelectorAll('#t-confluences-check .check-item').forEach(el => el.classList.remove('checked'));
+            $('loss-notes-section').style.display = 'none';
+            const now = new Date().toISOString().slice(0, 16);
+            $('t-entry-time').value = now;
+            $('t-exit-time').value = now;
+        }
+
+        $('t-result').addEventListener('change', () => {
+            $('loss-notes-section').style.display = $('t-result').value === 'Loss' ? 'block' : 'none';
+        });
+
+        async function editTrade(id) {
+            const t = _trades.find(x => x.id === id);
+            if (!t) return;
+            editingTradeId = id;
+            $('trade-modal-title').textContent = 'Edit Trade';
+            clearTradeForm();
+            $('t-asset').value = t.asset || '';
+            $('t-direction').value = t.direction || 'Long';
+            $('t-entry-time').value = t.entry_time || '';
+            $('t-exit-time').value = t.exit_time || '';
+            $('t-sl').value = t.sl || '';
+            $('t-tp').value = t.tp || '';
+            $('t-rr-plan').value = t.rr_plan || '';
+            $('t-rr-actual').value = t.rr_actual || '';
+            $('t-risk').value = t.risk || '';
+            $('t-pnl').value = t.pnl || '';
+            $('t-result').value = t.result || 'Win';
+            $('t-entry-model').value = t.entry_model || '';
+            $('t-session').value = t.session || '';
+            $('t-emotion-before').value = t.emotion_before || '';
+            $('t-emotion-during').value = t.emotion_during || '';
+            $('t-opening').value = t.opening || '';
+            $('t-mistake').value = t.mistake || '';
+            $('t-lesson').value = t.lesson || '';
+            $('t-loss-notes').value = t.loss_notes || '';
+            if (t.result === 'Loss') $('loss-notes-section').style.display = 'block';
+            // Check confluences
+            (t.confluences || []).forEach(c => {
+                const el = document.querySelector(`#t-confluences-check [data-val="${c}"]`);
+                if (el) el.classList.add('checked');
+            });
+            openModal('trade-modal');
+        }
+
+        async function deleteTrade(id) {
+            if (!confirm('Delete this trade?')) return;
+            await deleteItem('trades', id);
+            toast('Trade deleted', 'success');
+            loadTradeLog();
+            loadDashboard();
+        }
+
+        $('save-trade-btn').addEventListener('click', async () => {
+            const asset = $('t-asset').value.trim();
+            if (!asset) return toast('Asset/pair is required', 'error');
+            const data = {
+                asset, direction: $('t-direction').value,
+                entry_time: $('t-entry-time').value, exit_time: $('t-exit-time').value,
+                sl: $('t-sl').value, tp: $('t-tp').value,
+                rr_plan: $('t-rr-plan').value, rr_actual: $('t-rr-actual').value,
+                risk: $('t-risk').value, pnl: $('t-pnl').value,
+                result: $('t-result').value, account: $('t-account').value,
+                entry_model: $('t-entry-model').value, session: $('t-session').value,
+                emotion_before: $('t-emotion-before').value, emotion_during: $('t-emotion-during').value,
+                opening: $('t-opening').value, mistake: $('t-mistake').value,
+                confluences: getChecked('t-confluences-check'),
+                lesson: $('t-lesson').value, loss_notes: $('t-loss-notes').value
+            };
+            try {
+                if (editingTradeId) {
+                    await updateItem('trades', editingTradeId, data);
+                    toast('Trade updated', 'success');
+                } else {
+                    await addItem('trades', data);
+                    toast('Trade saved', 'success');
+                }
+                closeModal('trade-modal');
+                loadTradeLog();
+                loadDashboard();
+            } catch (e) { toast(e.message, 'error'); }
+        });
+
+        // ════════════════════════════════════════════════════════
+        //  PRE-MARKET
+        // ════════════════════════════════════════════════════════
+        async function loadPreMarket() {
+            const logs = await getAll('pre_market_logs');
+            const sorted = [...logs].sort((a, b) => {
+                const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+                const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+                return db - da;
+            });
+            const el = $('pm-logs-list');
+            if (!sorted.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-title">No logs yet</div></div>';
+                return;
+            }
+            el.innerHTML = sorted.map(l => `
+    <div class="trade-card mb-4" id="pm-${l.id}">
+      <div class="trade-card-header" onclick="toggleCard('pm-${l.id}')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="text-accent font-bold">${l.date || formatDate(l.createdAt)}</span>
+          <span class="badge ${l.outcome === 'TRADE' ? 'badge-green' : 'badge-red'}">${l.outcome || '—'}</span>
+          <span class="text-muted text-xs">${l.htf_bias || ''} · ${l.profile_type || ''}</span>
+        </div>
+        <svg class="trade-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="trade-card-body">
+        <div class="form-grid">
+          <div><div class="form-label">HTF Bias</div><div>${l.htf_bias || '—'}</div></div>
+          <div><div class="form-label">Profile Type</div><div>${l.profile_type || '—'}</div></div>
+          <div><div class="form-label">Outcome</div><div>${l.outcome || '—'}</div></div>
+          <div><div class="form-label">Session</div><div>${l.session || '—'}</div></div>
+          <div><div class="form-label">DOL</div><div>${l.dol || '—'}</div></div>
+          <div><div class="form-label">FF News</div><div>${l.ff || '—'}</div></div>
+          <div class="full"><div class="form-label">Notes</div><div style="font-size:12px;line-height:1.6">${l.notes || '—'}</div></div>
+          <div class="full"><div class="form-label">Trade Review</div><div style="font-size:12px;line-height:1.6">${l.trade_review || '—'}</div></div>
+        </div>
+        <button class="btn btn-xs btn-danger mt-3" onclick="deletePmLog('${l.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+        }
+
+        function toggleCard(id) {
+            const el = $(id);
+            if (el) el.classList.toggle('expanded');
+        }
+
+        async function deletePmLog(id) {
+            if (!confirm('Delete this log?')) return;
+            await deleteItem('pre_market_logs', id);
+            toast('Deleted', 'success');
+            loadPreMarket();
+        }
+
+        $('save-pm-btn').addEventListener('click', async () => {
+            const data = {
+                date: $('pm-date').value,
+                htf_bias: $('pm-htf-bias').value, profile_type: $('pm-profile-type').value,
+                key_level: $('pm-key-level').value, outcome: $('pm-outcome').value,
+                liquidity: $('pm-liquidity').value, session: $('pm-session').value,
+                pd: $('pm-pd').value, dol: $('pm-dol').value,
+                ohlc: $('pm-ohlc').value, ff: $('pm-ff').value,
+                notes: $('pm-notes').value,
+                ltf_liq: $('pm-ltf-liq').value, ltf_kl: $('pm-ltf-kl').value,
+                ltf_candle: $('pm-ltf-candle').value, ltf_entry: $('pm-ltf-entry').value,
+                msb: $('pm-msb').value, psp: $('pm-psp').value,
+                trade_review: $('pm-trade-review').value
+            };
+            await addItem('pre_market_logs', data);
+            toast('Pre-market analysis saved', 'success');
+            loadPreMarket();
+        });
+
+        // ════════════════════════════════════════════════════════
+        //  REVIEW
+        // ════════════════════════════════════════════════════════
+        async function loadReview() {
+            await loadWeeklyReviews();
+            await loadReviewTradeList();
+        }
+
+        async function loadWeeklyReviews() {
+            const reviews = await getAll('weekly_reviews');
+            const sorted = [...reviews].sort((a, b) => (b.week || '').localeCompare(a.week || ''));
+            const el = $('weekly-reviews-list');
+            if (!sorted.length) { el.innerHTML = '<div class="empty-state"><div class="empty-title">No weekly reviews yet</div></div>'; return; }
+            el.innerHTML = sorted.map(r => `
+    <div class="trade-card mb-4" id="wr-${r.id}">
+      <div class="trade-card-header" onclick="toggleCard('wr-${r.id}')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="text-accent font-bold">Week of ${r.week || '—'}</span>
+        </div>
+        <svg class="trade-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="trade-card-body">
+        <div class="form-label mt-2">What Worked</div><p style="font-size:12px;line-height:1.6;margin-bottom:10px">${r.worked || '—'}</p>
+        <div class="form-label">What Didn't Work</div><p style="font-size:12px;line-height:1.6;margin-bottom:10px">${r.didnt || '—'}</p>
+        <div class="form-label">Improvement Notes</div><p style="font-size:12px;line-height:1.6">${r.improve || '—'}</p>
+        <button class="btn btn-xs btn-danger mt-3" onclick="deleteWeeklyReview('${r.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+        }
+
+        async function deleteWeeklyReview(id) {
+            if (!confirm('Delete?')) return;
+            await deleteItem('weekly_reviews', id);
+            toast('Deleted', 'success');
+            loadWeeklyReviews();
+        }
+
+        $('save-weekly-btn').addEventListener('click', async () => {
+            await addItem('weekly_reviews', {
+                week: $('wr-week').value,
+                worked: $('wr-worked').value,
+                didnt: $('wr-didnt').value,
+                improve: $('wr-improve').value
+            });
+            toast('Weekly review saved', 'success');
+            $('wr-worked').value = ''; $('wr-didnt').value = ''; $('wr-improve').value = '';
+            loadWeeklyReviews();
+        });
+
+        async function loadReviewTradeList() {
+            _trades = await getAll('trades');
+            const el = $('review-trades-list');
+            if (!_trades.length) { el.innerHTML = '<div class="empty-state"><div class="empty-title">No trades</div></div>'; return; }
+            const sorted = [..._trades].sort((a, b) => {
+                const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+                const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+                return db - da;
+            });
+            el.innerHTML = sorted.map(t => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <span style="color:var(--text);font-size:13px;font-weight:500">${t.asset || '—'}</span>
+          <span class="text-muted text-xs" style="margin-left:8px">${formatDateShort(t.createdAt)}</span>
+        </div>
+        <span class="badge ${resultBadge(t.result)}">${t.result || '—'}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+        ${(t.confluences || []).map(c => `<span class="badge badge-blue" style="font-size:9px">${c}</span>`).join('')}
+        ${!(t.confluences || []).length ? '<span class="text-xs text-muted">No confluences recorded</span>' : ''}
+      </div>
+      ${t.lesson ? `<div class="text-xs text-muted mt-2">💡 ${t.lesson}</div>` : ''}
+    </div>`).join('');
+        }
+
+        async function loadMonthlyReviewStats() {
+            const month = $('mr-month').value;
+            if (!month) return;
+            _trades = await getAll('trades');
+            const [y, m] = month.split('-').map(Number);
+            const filtered = _trades.filter(t => {
+                const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt || 0);
+                return d.getFullYear() === y && d.getMonth() + 1 === m;
+            });
+            const wins = filtered.filter(t => t.result === 'Win').length;
+            const losses = filtered.filter(t => t.result === 'Loss').length;
+            const pnl = filtered.reduce((s, t) => s + (parseFloat(t.pnl) || 0), 0);
+            const el = $('monthly-stats-review');
+            el.innerHTML = `
+    <div class="grid-2" style="gap:12px">
+      <div class="stat-card card-sm" style="--accent-color:var(--green)">
+        <div class="stat-label">Trades</div>
+        <div class="stat-value" style="font-size:20px">${filtered.length}</div>
+      </div>
+      <div class="stat-card card-sm" style="--accent-color:var(--accent)">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value green" style="font-size:20px">${filtered.length ? ((wins / filtered.length) * 100).toFixed(0) : 0}%</div>
+      </div>
+      <div class="stat-card card-sm" style="--accent-color:var(--green)">
+        <div class="stat-label">Wins</div>
+        <div class="stat-value green" style="font-size:20px">${wins}</div>
+      </div>
+      <div class="stat-card card-sm" style="--accent-color:var(--red)">
+        <div class="stat-label">Losses</div>
+        <div class="stat-value red" style="font-size:20px">${losses}</div>
+      </div>
+      <div class="stat-card card-sm full" style="--accent-color:var(--amber)">
+        <div class="stat-label">Total PnL</div>
+        <div class="stat-value ${pnl >= 0 ? 'green' : 'red'}" style="font-size:20px">${(pnl >= 0 ? '+' : '') + pnl.toFixed(2)}</div>
+      </div>
+    </div>`;
+        }
+        $('mr-month').addEventListener('change', loadMonthlyReviewStats);
+
+        $('save-monthly-btn').addEventListener('click', async () => {
+            await addItem('monthly_reviews', {
+                month: $('mr-month').value,
+                analysis: $('mr-analysis').value,
+                goals: $('mr-goals').value
+            });
+            toast('Monthly review saved', 'success');
+            loadMonthlyReviewList();
+        });
+
+        async function loadMonthlyReviewList() {
+            const reviews = await getAll('monthly_reviews');
+            const el = $('monthly-reviews-list');
+            if (!reviews.length) { el.innerHTML = '<div class="empty-state"><div class="empty-title">No monthly reviews</div></div>'; return; }
+            el.innerHTML = reviews.sort((a, b) => (b.month || '').localeCompare(a.month || '')).map(r => `
+    <div class="trade-card mb-4" id="mr-${r.id}">
+      <div class="trade-card-header" onclick="toggleCard('mr-${r.id}')">
+        <span class="text-accent font-bold">${r.month || '—'}</span>
+        <svg class="trade-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="trade-card-body">
+        <div class="form-label">Analysis</div><p style="font-size:12px;line-height:1.6;margin-bottom:10px">${r.analysis || '—'}</p>
+        <div class="form-label">Goals</div><p style="font-size:12px;line-height:1.6">${r.goals || '—'}</p>
+        <button class="btn btn-xs btn-danger mt-3" onclick="deleteMonthlyReview('${r.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+        }
+        async function deleteMonthlyReview(id) {
+            if (!confirm('Delete?')) return;
+            await deleteItem('monthly_reviews', id);
+            toast('Deleted', 'success');
+            loadMonthlyReviewList();
+        }
+
+        // Rules
+        async function loadRules() {
+            const rules = await getAll('rules');
+            const el = $('rules-list');
+            if (!rules.length) { el.innerHTML = '<div class="empty-state"><div class="empty-title">No rules yet</div><div class="empty-sub">Add your pre-trade checklist rules</div></div>'; return; }
+            el.innerHTML = rules.map(r => `
+    <div class="check-item" style="margin-bottom:8px;cursor:default">
+      <div class="check-box" style="border-color:var(--accent)">
+        <span style="font-size:10px;color:var(--accent)">✓</span>
+      </div>
+      <span style="flex:1">${r.text || r.name || '—'}</span>
+      <span class="badge badge-purple" style="margin-right:8px">${r.category || ''}</span>
+      <button class="btn btn-xs btn-danger" onclick="deleteRule('${r.id}')">✕</button>
+    </div>`).join('');
+        }
+
+        let editRuleId = null;
+        $('add-rule-btn').addEventListener('click', () => {
+            editRuleId = null;
+            $('review-modal-title').textContent = 'Add Rule';
+            $('rule-text').value = '';
+            openModal('review-modal');
+        });
+        $('save-rule-btn').addEventListener('click', async () => {
+            const text = $('rule-text').value.trim();
+            if (!text) return toast('Rule text required', 'error');
+            await addItem('rules', { text, category: $('rule-cat').value });
+            toast('Rule saved', 'success');
+            closeModal('review-modal');
+            loadRules();
+        });
+        async function deleteRule(id) {
+            await deleteItem('rules', id);
+            toast('Deleted', 'success');
+            loadRules();
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  PSYCHOLOGY
+        // ════════════════════════════════════════════════════════
+        async function loadPsychology() {
+            const logs = await getAll('psych_logs');
+            // Stats
+            const ratings = logs.map(l => parseFloat(l.rating) || 0).filter(r => r > 0);
+            $('psych-avg-rating').textContent = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : '—';
+            $('psych-total-logs').textContent = logs.length;
+            const goals = logs.filter(l => l.weekly_goal || l.monthly_goal).length;
+            $('psych-goals').textContent = goals;
+
+            // All trades with emotional state + confluences
+            _trades = await getAll('trades');
+            const tradesEl = $('psych-trades-list');
+            const sorted = [..._trades].sort((a, b) => {
+                const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+                const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+                return db - da;
+            });
+            if (!sorted.length) {
+                tradesEl.innerHTML = '<div class="empty-state"><div class="empty-title">No trades recorded</div></div>';
+            } else {
+                tradesEl.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Asset</th><th>Result</th>
+            <th>Emotion Before</th><th>Emotion During</th>
+            <th>Confluences</th><th>Lesson</th>
+          </tr></thead>
+          <tbody>
+            ${sorted.map(t => `
+              <tr>
+                <td>${formatDateShort(t.createdAt)}</td>
+                <td class="asset-name">${t.asset || '—'}</td>
+                <td class="${resultClass(t.result)}">${t.result || '—'}</td>
+                <td>${t.emotion_before || '—'}</td>
+                <td>${t.emotion_during || '—'}</td>
+                <td style="max-width:200px">
+                  <div style="display:flex;flex-wrap:wrap;gap:3px">
+                    ${(t.confluences || []).map(c => `<span class="badge badge-blue" style="font-size:9px">${c}</span>`).join('') || '—'}
+                  </div>
+                </td>
+                <td style="font-size:11px;max-width:160px;color:var(--text3)">${t.lesson || '—'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+            }
+
+            // Psych journal
+            const logsEl = $('psych-logs-list');
+            if (!logs.length) {
+                logsEl.innerHTML = '<div class="empty-state"><div class="empty-icon">🧠</div><div class="empty-title">No psychology logs yet</div><div class="empty-sub">Track your daily mindset</div></div>';
+                return;
+            }
+            const sortedLogs = [...logs].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            logsEl.innerHTML = sortedLogs.map(l => {
+                const r = parseFloat(l.rating) || 0;
+                const color = r >= 7 ? 'var(--green)' : r >= 4 ? 'var(--amber)' : 'var(--red)';
+                return `
+      <div class="trade-card mb-4" id="pl-${l.id}">
+        <div class="trade-card-header" onclick="toggleCard('pl-${l.id}')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="font-bold" style="color:${color}">${l.rating || '—'}/10</span>
+            <span class="text-accent">${l.date || '—'}</span>
+            <span class="text-muted text-xs">${l.weekly_goal ? '🎯 ' + l.weekly_goal : ''}</span>
+          </div>
+          <svg class="trade-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="trade-card-body">
+          <div class="form-label">Notes</div><p style="font-size:12px;line-height:1.6;margin-bottom:10px">${l.notes || '—'}</p>
+          ${l.weekly_goal ? `<div class="form-label">Weekly Goal</div><p style="font-size:12px;margin-bottom:10px">${l.weekly_goal}</p>` : ''}
+          ${l.monthly_goal ? `<div class="form-label">Monthly Goal</div><p style="font-size:12px">${l.monthly_goal}</p>` : ''}
+          <button class="btn btn-xs btn-danger mt-3" onclick="deletePsychLog('${l.id}')">Delete</button>
+        </div>
+      </div>`;
+            }).join('');
+        }
+
+        $('add-psych-btn').addEventListener('click', () => openModal('psych-modal'));
+        $('save-psych-btn').addEventListener('click', async () => {
+            await addItem('psych_logs', {
+                date: $('pl-date').value, rating: $('pl-rating').value,
+                notes: $('pl-notes').value, weekly_goal: $('pl-weekly-goal').value,
+                monthly_goal: $('pl-monthly-goal').value
+            });
+            toast('Psychology log saved', 'success');
+            closeModal('psych-modal');
+            loadPsychology();
+        });
+        async function deletePsychLog(id) {
+            await deleteItem('psych_logs', id);
+            toast('Deleted', 'success');
+            loadPsychology();
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  ASSETS
+        // ════════════════════════════════════════════════════════
+        async function loadAssets() {
+            const funded = await getAll('funded_accounts');
+            const live = await getAll('live_accounts');
+            renderAccountList('funded-accounts-list', funded, 'funded');
+            renderAccountList('live-accounts-list', live, 'live');
+        }
+
+        function renderAccountList(elId, accounts, type) {
+            const el = $(elId);
+            if (!accounts.length) {
+                el.innerHTML = '<div class="empty-state"><div class="empty-title">No accounts</div><div class="empty-sub">Add an account to track</div></div>';
+                return;
+            }
+            el.innerHTML = accounts.map(a => `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${a.name || '—'}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">${a.account_type || ''} · ${a.stage || ''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-xs btn-outline" onclick="editAccount('${a.id}','${type}')">Edit</button>
+          <button class="btn btn-xs btn-danger" onclick="deleteAccount('${a.id}','${type}')">Del</button>
+        </div>
+      </div>
+      <div class="grid-2" style="gap:8px">
+        <div><div class="form-label">Account Size</div><div style="font-size:13px">$${Number(a.size || 0).toLocaleString()}</div></div>
+        <div><div class="form-label">Current Equity</div><div style="font-size:13px;color:var(--green)">$${Number(a.equity || 0).toLocaleString()}</div></div>
+        <div><div class="form-label">Leverage</div><div style="font-size:13px">${a.leverage || '—'}</div></div>
+        <div><div class="form-label">Max Daily Loss</div><div style="font-size:13px;color:var(--red)">$${Number(a.daily_loss || 0).toLocaleString()}</div></div>
+      </div>
+    </div>`).join('');
+        }
+
+        $('add-funded-btn').addEventListener('click', () => openAssetModal('funded', null));
+        $('add-live-btn').addEventListener('click', () => openAssetModal('live', null));
+
+        function openAssetModal(type, data) {
+            assetType = type;
+            editingAssetId = data?.id || null;
+            $('asset-modal-title').textContent = (data ? 'Edit' : 'Add') + ' ' + (type === 'funded' ? 'Funded' : 'Live') + ' Account';
+            $('a-type').value = type;
+            $('a-name').value = data?.name || '';
+            $('a-size').value = data?.size || '';
+            $('a-account-type').value = data?.account_type || 'Instant';
+            $('a-stage').value = data?.stage || 'Phase 1';
+            $('a-leverage').value = data?.leverage || '';
+            $('a-equity').value = data?.equity || '';
+            $('a-daily-loss').value = data?.daily_loss || '';
+            openModal('asset-modal');
+        }
+        async function editAccount(id, type) {
+            const col = type === 'funded' ? 'funded_accounts' : 'live_accounts';
+            const accounts = await getAll(col);
+            const a = accounts.find(x => x.id === id);
+            if (a) openAssetModal(type, a);
+        }
+        async function deleteAccount(id, type) {
+            if (!confirm('Delete account?')) return;
+            const col = type === 'funded' ? 'funded_accounts' : 'live_accounts';
+            await deleteItem(col, id);
+            toast('Account deleted', 'success');
+            loadAssets();
+        }
+        $('save-asset-btn').addEventListener('click', async () => {
+            const col = assetType === 'funded' ? 'funded_accounts' : 'live_accounts';
+            const data = {
+                name: $('a-name').value, size: $('a-size').value,
+                account_type: $('a-account-type').value, stage: $('a-stage').value,
+                leverage: $('a-leverage').value, equity: $('a-equity').value,
+                daily_loss: $('a-daily-loss').value
+            };
+            if (editingAssetId) await updateItem(col, editingAssetId, data);
+            else await addItem(col, data);
+            toast('Account saved', 'success');
+            closeModal('asset-modal');
+            loadAssets();
+            // Refresh account list in trade modal
+            const funded = await getAll('funded_accounts');
+            const live = await getAll('live_accounts');
+            _accounts = [...funded.map(a => ({ ...a, type: 'funded' })), ...live.map(a => ({ ...a, type: 'live' }))];
+            const ac = $('t-account');
+            ac.innerHTML = '<option value="">Select...</option>' + _accounts.map(a => `<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
+        });
+
+        // ════════════════════════════════════════════════════════
+        //  MODEL CONFIG (add/remove from all lists)
+        // ════════════════════════════════════════════════════════
+        async function loadModel() {
+            await loadModelData();
+            renderModelList('entry-models-list', _models.entry_models, 'entry_models');
+            renderModelList('confluences-model-list', _models.confluences, 'confluences');
+            renderModelList('mistakes-model-list', _models.mistakes, 'mistakes');
+            renderModelList('emotions-model-list', _models.emotions, 'emotions');
+            renderModelList('sessions-model-list', _models.sessions, 'sessions');
+            renderModelList('htf-model-list', _models.htf_setups, 'htf_setups');
+        }
+
+        function renderModelList(elId, items, col) {
+            const el = $(elId);
+            if (!items || !items.length) {
+                el.innerHTML = '<p class="text-muted text-xs" style="padding:8px">Empty. Add items above.</p>';
+                return;
+            }
+            el.innerHTML = items.map(item => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="color-dot" style="background:var(--accent);opacity:0.6"></div>
+      <span style="flex:1;font-size:12px">${item.name}</span>
+      <button class="btn btn-xs btn-danger" onclick="deleteModelItem('${col}','${item.id}')">✕</button>
+    </div>`).join('');
+        }
+
+        async function deleteModelItem(col, id) {
+            if (!confirm('Remove this item?')) return;
+            await deleteItem(col, id);
+            toast('Removed', 'success');
+            loadModel();
+        }
+
+        function setupModelAddBtn(btnId, col) {
+            $(btnId).addEventListener('click', async () => {
+                const name = prompt(`Enter new ${col.replace(/_/g, ' ')} name:`);
+                if (!name || !name.trim()) return;
+                await addItem(col, { name: name.trim() });
+                toast('Added', 'success');
+                loadModel();
+            });
+        }
+
+        // Wire up add buttons
+        document.addEventListener('DOMContentLoaded', () => { });
+        // We wire these after DOM is ready
+        setTimeout(() => {
+            setupModelAddBtn('add-entry-model-btn', 'entry_models');
+            setupModelAddBtn('add-confluence-btn', 'confluences');
+            setupModelAddBtn('add-mistake-btn', 'mistakes');
+            setupModelAddBtn('add-emotion-btn', 'emotions');
+            setupModelAddBtn('add-session-btn', 'sessions');
+            setupModelAddBtn('add-htf-btn', 'htf_setups');
+        }, 500);
+
+        // ════════════════════════════════════════════════════════
+        //  CLOSE MODALS ON OVERLAY CLICK
+        // ════════════════════════════════════════════════════════
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) overlay.classList.remove('open');
+            });
+        });
+    </script>
+</body>
+
+</html>
