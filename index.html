@@ -35,14 +35,11 @@
             measurementId: "G-TCELFS6PF7"
         };
         // ============================================================
-
-        // Auto-detect authDomain for Vercel/custom domains
-        // This allows Google Sign-In to work on any deployed domain
-        if (window.location.hostname !== 'localhost' 
-            && window.location.hostname !== '127.0.0.1'
-            && !window.location.hostname.endsWith('.firebaseapp.com')) {
-            firebaseConfig.authDomain = window.location.hostname;
-        }
+        // NOTE: authDomain MUST remain as *.firebaseapp.com
+        // The OAuth popup handler (/__/auth/handler) only exists on Firebase Hosting.
+        // For Vercel deployment, add your Vercel domain to Firebase Console → 
+        // Authentication → Settings → Authorized Domains.
+        // ============================================================
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
