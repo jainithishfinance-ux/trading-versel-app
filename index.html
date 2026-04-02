@@ -140,6 +140,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
 .mb3{margin-bottom:16px}
 .mb4{margin-bottom:24px}
 
@@ -155,6 +156,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .stat-val.red{color:var(--red)}
 .stat-val.amber{color:var(--amber)}
 .stat-hint{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+
+/* ── MINI STAT (for dashboard extra rows) ── */
+.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;
+  position:relative;overflow:hidden}
+.mini-stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--accent));border-radius:99px 99px 0 0}
+.mini-stat .stat-label{margin-bottom:6px}
+.mini-stat .stat-val{font-size:20px}
 
 /* ── FORM ── */
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -175,7 +183,6 @@ textarea.finput{resize:vertical;min-height:80px;line-height:1.6}
 
 /* ── CHECKLIST ── */
 .checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-/* Multi-select (default) */
 .chk{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);
   border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;
   color:var(--text2);transition:all .15s;user-select:none}
@@ -185,8 +192,6 @@ textarea.finput{resize:vertical;min-height:80px;line-height:1.6}
   display:flex;align-items:center;justify-content:center;transition:all .15s}
 .chk.on .chk-box{background:var(--accent);border-color:var(--accent)}
 .chk.on .chk-box::after{content:'✓';font-size:11px;color:#fff;font-weight:700}
-
-/* Single choice (radio-like) */
 .chk.single-on{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.06)}
 .chk.single-on .chk-box{background:var(--green);border-color:var(--green)}
 
@@ -309,8 +314,27 @@ tr:hover td{background:rgba(255,255,255,.02)}
 /* ── MULTI-SELECT HINT ── */
 .multi-hint{font-size:9px;color:var(--text3);letter-spacing:1px;margin-left:6px;text-transform:uppercase}
 
+/* ── DASHBOARD INSIGHT ROW ── */
+.insight-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.insight-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.insight-label{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px}
+.insight-val{font-size:18px;font-weight:700}
+.insight-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* ── SESSION BAR ── */
+.sess-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.sess-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:8px;font-size:11px}
+.sess-chip-dot{width:7px;height:7px;border-radius:50%}
+
+/* ── ACCOUNT CARD ── */
+.account-type-tag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--mono);
+  padding:2px 8px;border-radius:5px;font-weight:700}
+.tag-funded{background:rgba(59,130,246,.12);color:var(--accent)}
+.tag-live{background:rgba(34,197,94,.12);color:var(--green)}
+
 /* ── RESPONSIVE ── */
-@media(max-width:1200px){.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:1200px){.g4{grid-template-columns:1fr 1fr}.g5{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){
   .sidebar{width:64px}
   .brand-sub,.sidebar-brand .brand-logo span,.nav-group-label,.nav-item span,.user-info,.signout-btn{display:none}
@@ -318,9 +342,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
   .nav-item{justify-content:center;padding:12px;margin:2px 6px}
   .nav-item.active{border-radius:12px}
   .main{margin-left:64px}
-  .g2,.g3,.fg,.fg3{grid-template-columns:1fr}
+  .g2,.g3,.fg,.fg3,.insight-row{grid-template-columns:1fr}
   .checklist{grid-template-columns:1fr}
-  .g4{grid-template-columns:1fr 1fr}
+  .g4,.g5{grid-template-columns:1fr 1fr}
 }
 
 /* ── MISC ── */
@@ -428,7 +452,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
 
-      <div class="g4 mb4">
+      <!-- Row 1: Core stats -->
+      <div class="g5 mb3">
         <div class="stat" style="--c:var(--accent)">
           <div class="stat-label">Total Trades</div>
           <div class="stat-val" id="stat-total">—</div>
@@ -436,6 +461,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="stat" style="--c:var(--green)">
           <div class="stat-label">Win Rate</div>
           <div class="stat-val green" id="stat-wr">—</div>
+        </div>
+        <div class="stat" style="--c:var(--green)">
+          <div class="stat-label">Total PnL</div>
+          <div class="stat-val" id="stat-pnl">—</div>
         </div>
         <div class="stat" style="--c:var(--red)">
           <div class="stat-label">Max Drawdown</div>
@@ -447,22 +476,66 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
 
-      <div class="g3 mb4">
-        <div class="stat" style="--c:var(--green)">
-          <div class="stat-label">Total PnL</div>
-          <div class="stat-val" id="stat-pnl">—</div>
+      <!-- Row 2: Extra insights -->
+      <div class="insight-row mb3">
+        <div class="insight-card" style="position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--purple);border-radius:99px 99px 0 0"></div>
+          <div class="insight-label">Current Streak</div>
+          <div class="insight-val" id="stat-streak">—</div>
+          <div class="insight-sub" id="stat-streak-sub"></div>
         </div>
-        <div class="stat" style="--c:var(--purple)">
-          <div class="stat-label">Current Streak</div>
-          <div class="stat-val" id="stat-streak">—</div>
+        <div class="insight-card" style="position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--green);border-radius:99px 99px 0 0"></div>
+          <div class="insight-label">Avg Win Size</div>
+          <div class="insight-val text-green" id="stat-avg-win">—</div>
+          <div class="insight-sub">per winning trade</div>
         </div>
-        <div class="stat" style="--c:var(--teal)">
-          <div class="stat-label">Rule Violations</div>
-          <div class="stat-val" id="stat-violations">—</div>
+        <div class="insight-card" style="position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);border-radius:99px 99px 0 0"></div>
+          <div class="insight-label">Avg Loss Size</div>
+          <div class="insight-val text-red" id="stat-avg-loss">—</div>
+          <div class="insight-sub">per losing trade</div>
         </div>
       </div>
 
-      <div class="g2 mb4">
+      <!-- Row 3: More insights -->
+      <div class="g4 mb3">
+        <div class="mini-stat" style="--c:var(--teal)">
+          <div class="stat-label">Rule Violations</div>
+          <div class="stat-val" id="stat-violations">—</div>
+          <div class="stat-hint">trades with mistakes</div>
+        </div>
+        <div class="mini-stat" style="--c:var(--cyan)">
+          <div class="stat-label">Best Asset</div>
+          <div class="stat-val" id="stat-best-asset" style="font-size:18px">—</div>
+          <div class="stat-hint" id="stat-best-asset-pnl"></div>
+        </div>
+        <div class="mini-stat" style="--c:var(--amber)">
+          <div class="stat-label">Profit Factor</div>
+          <div class="stat-val amber" id="stat-pf">—</div>
+          <div class="stat-hint">gross wins / gross losses</div>
+        </div>
+        <div class="mini-stat" style="--c:var(--purple)">
+          <div class="stat-label">Best Session</div>
+          <div class="stat-val" id="stat-best-session" style="font-size:18px">—</div>
+          <div class="stat-hint" id="stat-best-session-wr"></div>
+        </div>
+      </div>
+
+      <!-- Row 4: Session breakdown + Direction split -->
+      <div class="g2 mb3">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📊 Session Breakdown</div></div>
+          <div id="session-breakdown-list"><div class="loading-wrap"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📐 Direction Split</div></div>
+          <div id="direction-split-list"><div class="loading-wrap"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Row 5: Loss causes + Best confluences -->
+      <div class="g2 mb3">
         <div class="card">
           <div class="card-header">
             <div><div class="card-title text-red">⚠ Loss Causes</div><div class="card-sub">From loss trade notes</div></div>
@@ -477,6 +550,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
 
+      <!-- Row 6: Monthly chart + Recent trades -->
       <div class="g2">
         <div class="card">
           <div class="card-header"><div class="card-title">📅 Monthly PnL</div></div>
@@ -677,7 +751,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
     <div class="modal-body">
 
-      <!-- ── SECTION 1: BASIC INFO ── -->
       <div class="fsection">Basic Info</div>
       <div class="fg mb3">
         <div class="fgroup"><label class="flabel">Asset / Pair</label><input class="finput" id="t-asset" placeholder="e.g. GBPUSD"></div>
@@ -707,7 +780,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="fgroup"><label class="flabel">Account</label><select class="finput" id="t-account"></select></div>
       </div>
 
-      <!-- ── SECTION 2: ENTRY MODEL ── -->
       <hr class="fdivider">
       <div class="fsection">Entry Model</div>
       <div class="fgroup mb3">
@@ -718,11 +790,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
 
-      <!-- ── SECTION 3: TRADE ANALYSIS ── -->
       <hr class="fdivider">
       <div class="fsection">Trade Analysis</div>
 
-      <!-- COMBINED CHECKLIST: Session + Direction + Emotion + Mistake in one unified block -->
       <div class="combined-section mb3">
         <div class="combined-section-title">🗂 Combined Trade Context <span style="font-size:9px;color:var(--text3);letter-spacing:1px">(multi-select where noted)</span></div>
         <div class="fg">
@@ -765,7 +835,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
       </div>
 
-      <!-- ── SECTION 4: PRE-MARKET ANALYSIS (Embedded) ── -->
       <hr class="fdivider">
       <div class="fsection" style="color:var(--accent)">📋 Pre-Market Analysis <span style="font-size:9px;color:var(--text3)">(saved together with this trade)</span></div>
 
@@ -774,7 +843,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
 
       <div class="modal-pm-section">
-        <!-- A: Pre-Market -->
         <div style="font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px;font-weight:700">A · Pre-Market Analysis</div>
         <div class="fg mb3">
           <div class="fgroup">
@@ -854,7 +922,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <div class="fgroup full"><label class="flabel">Pre-Market Notes</label><textarea class="finput" id="pm-t-notes" placeholder="Pre-market observations..."></textarea></div>
         </div>
 
-        <!-- B: LTF Confluences -->
         <div style="font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px;margin-top:20px;font-weight:700">B · LTF Confluences</div>
         <div class="fg mb3">
           <div class="fgroup">
@@ -888,7 +955,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
           </div>
         </div>
 
-        <!-- C: Post-Market — MSB/BOS REMOVED, only PSP + Trade Review remain -->
         <div style="font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-bottom:14px;margin-top:20px;font-weight:700">C · Post-Market Analysis</div>
         <div class="fg">
           <div class="fgroup">
@@ -922,23 +988,92 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
     <div class="modal-body">
       <input type="hidden" id="a-type">
-      <div class="fgroup mb3"><label class="flabel">Firm / Broker Name</label><input class="finput" id="a-name" placeholder="e.g. FTMO, IC Markets"></div>
-      <div class="fg">
-        <div class="fgroup"><label class="flabel">Account Size ($)</label><input type="number" class="finput" id="a-size" placeholder="100000"></div>
-        <div class="fgroup"><label class="flabel">Account Type</label>
-          <select class="finput" id="a-account-type">
-            <option>Instant</option><option>Pro</option><option>Normal</option><option>Standard</option><option>ECN</option>
-          </select>
+
+      <!-- FUNDED FIELDS -->
+      <div id="funded-fields">
+        <div class="fgroup mb3">
+          <label class="flabel">Firm Name</label>
+          <input class="finput" id="a-name-funded" placeholder="e.g. FTMO, MyForexFunds">
         </div>
-        <div class="fgroup"><label class="flabel">Stage</label>
-          <select class="finput" id="a-stage">
-            <option>Phase 1</option><option>Phase 2</option><option>Phase 3</option><option>Funded</option><option>N/A</option>
-          </select>
+        <div class="fg">
+          <div class="fgroup">
+            <label class="flabel">Account Size ($)</label>
+            <input type="number" class="finput" id="a-size-funded" placeholder="100000">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Account Type</label>
+            <select class="finput" id="a-account-type-funded" onchange="onFundedTypeChange()">
+              <option value="Instant">Instant</option>
+              <option value="Normal">Normal</option>
+              <option value="Pro">Pro</option>
+            </select>
+          </div>
+          <div class="fgroup" id="funded-stage-row">
+            <label class="flabel">Stage</label>
+            <select class="finput" id="a-stage-funded">
+              <option>Phase 1</option>
+              <option>Phase 2</option>
+              <option>Phase 3</option>
+              <option>Funded</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Leverage</label>
+            <input class="finput" id="a-leverage-funded" placeholder="1:100">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Current Equity ($)</label>
+            <input type="number" class="finput" id="a-equity-funded">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Max Daily Loss ($)</label>
+            <input type="number" class="finput" id="a-daily-loss-funded">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Max Overall Loss ($)</label>
+            <input type="number" class="finput" id="a-overall-loss-funded" placeholder="e.g. 10000">
+          </div>
         </div>
-        <div class="fgroup"><label class="flabel">Leverage</label><input class="finput" id="a-leverage" placeholder="1:100"></div>
-        <div class="fgroup"><label class="flabel">Current Equity ($)</label><input type="number" class="finput" id="a-equity"></div>
-        <div class="fgroup"><label class="flabel">Max Daily Loss ($)</label><input type="number" class="finput" id="a-daily-loss"></div>
       </div>
+
+      <!-- LIVE FIELDS -->
+      <div id="live-fields" style="display:none">
+        <div class="fgroup mb3">
+          <label class="flabel">Broker Name</label>
+          <input class="finput" id="a-name-live" placeholder="e.g. IC Markets, Pepperstone">
+        </div>
+        <div class="fg">
+          <div class="fgroup">
+            <label class="flabel">Account Size ($)</label>
+            <input type="number" class="finput" id="a-size-live" placeholder="10000">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Account Type</label>
+            <select class="finput" id="a-account-type-live">
+              <option value="Standard">Standard</option>
+              <option value="Raw">Raw</option>
+              <option value="ECN">ECN</option>
+            </select>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Leverage</label>
+            <input class="finput" id="a-leverage-live" placeholder="1:500">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Current Equity ($)</label>
+            <input type="number" class="finput" id="a-equity-live">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Max Daily Loss ($)</label>
+            <input type="number" class="finput" id="a-daily-loss-live">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Max Overall Loss ($)</label>
+            <input type="number" class="finput" id="a-overall-loss-live" placeholder="e.g. 3000">
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('asset-modal')">Cancel</button>
@@ -1028,23 +1163,22 @@ const pnlCls=v=>v>0?'td-pnl-pos':v<0?'td-pnl-neg':'';
 const resCls=r=>r==='Win'?'td-win':r==='Loss'?'td-loss':'td-be';
 const resBadge=r=>r==='Win'?'b-green':r==='Loss'?'b-red':'b-amber';
 
+// ════════════ FUNDED ACCOUNT TYPE CHANGE ════════════
+// When "Instant" is selected, hide the Stage row (no challenge phases)
+function onFundedTypeChange(){
+  const val=$('a-account-type-funded').value;
+  $('funded-stage-row').style.display=(val==='Instant')?'none':'block';
+}
+
 // ════════════ CHECKLIST HELPERS ════════════
-// Multi-select toggle (default)
 function toggleCheck(el){el.classList.toggle('on')}
 
-// Single-select toggle (radio-like)
 function toggleSingle(el){
   const group=el.dataset.group;
   document.querySelectorAll(`[data-group="${group}"]`).forEach(e=>e.classList.remove('on','single-on'));
   el.classList.add('on','single-on');
 }
 
-// Multi-select toggle for emotion/mistake groups (allows multiple)
-function toggleMulti(el){
-  el.classList.toggle('on');
-}
-
-// Three-way toggle helper
 function toggleTW(btn,group){
   document.querySelectorAll(`[data-group="${group}"]`).forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -1060,16 +1194,12 @@ function setTW(group,val){
   });
 }
 
-// Get all checked values from a container (multi-select)
 function getChecked(containerId){
   return[...document.querySelectorAll(`#${containerId} .chk.on`)].map(e=>e.dataset.val);
 }
-
-// Get all checked values from a group (multi-select by group)
 function getCheckedGroup(group){
   return[...document.querySelectorAll(`[data-group="${group}"].on`)].map(e=>e.dataset.val);
 }
-
 function getSingle(group){
   const el=document.querySelector(`[data-group="${group}"].on`);
   return el?el.dataset.val:'';
@@ -1082,15 +1212,11 @@ function setSingle(group,val){
 function resetSingle(group){
   document.querySelectorAll(`[data-group="${group}"]`).forEach(e=>e.classList.remove('on','single-on'));
 }
-
-// Set multi-select by group (for emotions/mistakes)
 function setCheckedGroup(group,vals){
   document.querySelectorAll(`[data-group="${group}"]`).forEach(el=>{
     el.classList.toggle('on',(vals||[]).includes(el.dataset.val));
   });
 }
-
-// Set a multi-select checklist by container id
 function setChecked(containerId,vals){
   document.querySelectorAll(`#${containerId} .chk`).forEach(el=>{
     el.classList.toggle('on',(vals||[]).includes(el.dataset.val));
@@ -1204,21 +1330,18 @@ async function loadModelData(){
 }
 
 function populateTradeSelects(){
-  // Emotion Before — MULTI-SELECT (toggleCheck)
   const eb=$('t-emotion-before-chk');
   eb.innerHTML=(_models.emotions||[]).map(m=>`
     <div class="chk" data-group="t_emotion_before" data-val="${m.name}" onclick="toggleCheck(this)">
       <div class="chk-box"></div><span>${m.name}</span>
     </div>`).join('');
 
-  // Emotion During — MULTI-SELECT (toggleCheck)
   const ed=$('t-emotion-during-chk');
   ed.innerHTML=(_models.emotions||[]).map(m=>`
     <div class="chk" data-group="t_emotion_during" data-val="${m.name}" onclick="toggleCheck(this)">
       <div class="chk-box"></div><span>${m.name}</span>
     </div>`).join('');
 
-  // Mistakes — MULTI-SELECT (toggleCheck)
   const mk=$('t-mistake-chk');
   mk.innerHTML=`<div class="chk" data-group="t_mistake" data-val="None" onclick="toggleCheck(this)"><div class="chk-box"></div>None</div>`+
     (_models.mistakes||[]).map(m=>`
@@ -1226,11 +1349,9 @@ function populateTradeSelects(){
       <div class="chk-box"></div><span>${m.name}</span>
     </div>`).join('');
 
-  // Account dropdown
   const ac=$('t-account');
   ac.innerHTML='<option value="">Select...</option>'+_accounts.map(a=>`<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
 
-  // Confluences — multi-select checklist
   const cc=$('t-confluences-check');
   cc.innerHTML=(_models.confluences||[]).map(c=>`
     <div class="chk" data-val="${c.name}" onclick="toggleCheck(this)">
@@ -1252,14 +1373,20 @@ async function loadDashboard(){
       if(period==='month')return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
     });
   }
+
   const total=trades.length;
-  const wins=trades.filter(t=>t.result==='Win').length;
-  const wr=total?((wins/total)*100).toFixed(1):0;
+  const wins=trades.filter(t=>t.result==='Win');
+  const losses=trades.filter(t=>t.result==='Loss');
+  const wr=total?((wins.length/total)*100).toFixed(1):0;
   const pnl=trades.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
   const rrVals=trades.filter(t=>t.rr_actual).map(t=>parseFloat(t.rr_actual));
   const avgRR=rrVals.length?(rrVals.reduce((a,b)=>a+b,0)/rrVals.length).toFixed(2):'—';
+
+  // Max drawdown
   let maxDD=0,curDD=0;
   trades.forEach(t=>{const p=parseFloat(t.pnl)||0;if(p<0){curDD+=p;if(curDD<maxDD)maxDD=curDD;}else curDD=0;});
+
+  // Streak
   const sorted=[...trades].sort((a,b)=>{
     const da=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);
     const db=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);
@@ -1271,36 +1398,157 @@ async function loadDashboard(){
     else if(t.result===streakType)streak++;
     else break;
   }
-  // Count violations: any trade with a mistake that isn't empty or 'None'
+
+  // Avg win/loss
+  const winPnls=wins.map(t=>parseFloat(t.pnl)||0);
+  const lossPnls=losses.map(t=>parseFloat(t.pnl)||0);
+  const avgWin=winPnls.length?(winPnls.reduce((a,b)=>a+b,0)/winPnls.length).toFixed(2):'—';
+  const avgLoss=lossPnls.length?(lossPnls.reduce((a,b)=>a+b,0)/lossPnls.length).toFixed(2):'—';
+
+  // Profit factor
+  const grossWin=winPnls.reduce((a,b)=>a+b,0);
+  const grossLoss=Math.abs(lossPnls.reduce((a,b)=>a+b,0));
+  const pf=grossLoss>0?(grossWin/grossLoss).toFixed(2):(grossWin>0?'∞':'—');
+
+  // Best asset by PnL
+  const assetMap={};
+  trades.forEach(t=>{const a=t.asset||'';if(!a)return;assetMap[a]=(assetMap[a]||0)+(parseFloat(t.pnl)||0);});
+  const sortedAssets=Object.entries(assetMap).sort((a,b)=>b[1]-a[1]);
+  const bestAsset=sortedAssets[0]||null;
+
+  // Best session by win rate
+  const sessMap={};
+  trades.forEach(t=>{
+    const s=t.session||'';if(!s)return;
+    if(!sessMap[s])sessMap[s]={wins:0,total:0};
+    sessMap[s].total++;
+    if(t.result==='Win')sessMap[s].wins++;
+  });
+  const sessArr=Object.entries(sessMap).map(([s,v])=>({s,wr:v.total?((v.wins/v.total)*100).toFixed(0):0,total:v.total}));
+  sessArr.sort((a,b)=>b.wr-a.wr);
+  const bestSess=sessArr[0]||null;
+
+  // Violations
   const violations=trades.filter(t=>{
     const m=t.mistakes||t.mistake;
     if(Array.isArray(m))return m.some(x=>x&&x!=='None'&&x!=='');
     return m&&m!==''&&m!=='None';
   }).length;
 
+  // Update DOM — core
   $('stat-total').textContent=total;
   $('stat-wr').textContent=wr+'%';
-  $('stat-dd').textContent=maxDD?maxDD.toFixed(2):'0';
-  $('stat-rr').textContent=avgRR;
   $('stat-pnl').textContent=(pnl>=0?'+':'')+pnl.toFixed(2);
   $('stat-pnl').className='stat-val '+(pnl>=0?'green':'red');
-  $('stat-streak').textContent=streak?`${streak}× ${streakType}`:'—';
-  $('stat-streak').className='stat-val '+(streakType==='Win'?'green':streakType==='Loss'?'red':'');
+  $('stat-dd').textContent=maxDD?maxDD.toFixed(2):'0';
+  $('stat-rr').textContent=avgRR;
+
+  // Streak
+  $('stat-streak').textContent=streak?`${streak}×`:'—';
+  $('stat-streak').style.color=streakType==='Win'?'var(--green)':streakType==='Loss'?'var(--red)':'var(--text)';
+  $('stat-streak-sub').textContent=streakType?streakType+' streak':'';
+
+  // Avg win/loss
+  $('stat-avg-win').textContent=avgWin!=='—'?'+'+avgWin:'—';
+  $('stat-avg-loss').textContent=avgLoss!=='—'?avgLoss:'—';
+
+  // Mini stats
   $('stat-violations').textContent=violations;
-  renderLossCauses(trades.filter(t=>t.result==='Loss'));
-  renderBestConfluences(trades.filter(t=>t.result==='Win'));
+  $('stat-best-asset').textContent=bestAsset?bestAsset[0]:'—';
+  $('stat-best-asset-pnl').textContent=bestAsset?((bestAsset[1]>=0?'+':'')+bestAsset[1].toFixed(2)+' total PnL'):'';
+  $('stat-pf').textContent=pf;
+  $('stat-best-session').textContent=bestSess?bestSess.s:'—';
+  $('stat-best-session-wr').textContent=bestSess?`${bestSess.wr}% WR (${bestSess.total} trades)`:'';
+
+  // Render sub-sections
+  renderSessionBreakdown(trades,sessMap);
+  renderDirectionSplit(trades);
+  renderLossCauses(losses);
+  renderBestConfluences(wins);
   renderMonthlyChart(trades);
   renderRecentTrades(sorted.slice(0,5));
 }
 
 $('dash-period').addEventListener('change',loadDashboard);
 
+function renderSessionBreakdown(trades,sessMap){
+  const el=$('session-breakdown-list');
+  if(!Object.keys(sessMap).length){el.innerHTML='<div class="empty"><div class="empty-title">No session data</div></div>';return;}
+  const colors={'London':'var(--accent)','New York':'var(--green)','Asian':'var(--amber)','NY Overlap':'var(--purple)'};
+  el.innerHTML=Object.entries(sessMap).map(([s,v])=>{
+    const wr=v.total?((v.wins/v.total)*100).toFixed(0):0;
+    const pnl=trades.filter(t=>t.session===s).reduce((a,t)=>a+(parseFloat(t.pnl)||0),0);
+    const c=colors[s]||'var(--teal)';
+    return`<div style="margin-bottom:14px">
+      <div class="row-between" style="margin-bottom:5px">
+        <div class="row gap2">
+          <div style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0"></div>
+          <span class="fw6 text-sm">${s}</span>
+          <span class="badge b-blue" style="font-size:9px">${v.total} trades</span>
+        </div>
+        <div class="row gap2">
+          <span class="text-xs ${parseFloat(pnl)>=0?'text-green':'text-red'} mono">${pnl>=0?'+':''}${pnl.toFixed(0)}</span>
+          <span class="text-xs mono" style="color:${c}">${wr}% WR</span>
+        </div>
+      </div>
+      <div class="prog"><div class="prog-fill" style="width:${wr}%;background:${c}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDirectionSplit(trades){
+  const el=$('direction-split-list');
+  const longs=trades.filter(t=>t.direction==='Long');
+  const shorts=trades.filter(t=>t.direction==='Short');
+  if(!longs.length&&!shorts.length){el.innerHTML='<div class="empty"><div class="empty-title">No direction data</div></div>';return;}
+  const calcStats=arr=>{
+    const wins=arr.filter(t=>t.result==='Win').length;
+    const pnl=arr.reduce((a,t)=>a+(parseFloat(t.pnl)||0),0);
+    const wr=arr.length?((wins/arr.length)*100).toFixed(0):0;
+    return{total:arr.length,wins,wr,pnl};
+  };
+  const ls=calcStats(longs),ss=calcStats(shorts);
+  const total=trades.length||1;
+  el.innerHTML=`
+    <div style="margin-bottom:20px">
+      <div class="row-between mb3">
+        <div class="row gap2"><div style="width:10px;height:10px;border-radius:2px;background:var(--green)"></div><span class="fw6">Long</span></div>
+        <div class="row gap3">
+          <span class="text-xs text-muted">${ls.total} trades</span>
+          <span class="text-xs text-green mono">${ls.wr}% WR</span>
+          <span class="text-xs mono ${ls.pnl>=0?'text-green':'text-red'}">${ls.pnl>=0?'+':''}${ls.pnl.toFixed(0)}</span>
+        </div>
+      </div>
+      <div class="prog"><div class="prog-fill" style="width:${(ls.total/total*100).toFixed(0)}%"></div></div>
+    </div>
+    <div>
+      <div class="row-between mb3">
+        <div class="row gap2"><div style="width:10px;height:10px;border-radius:2px;background:var(--red)"></div><span class="fw6">Short</span></div>
+        <div class="row gap3">
+          <span class="text-xs text-muted">${ss.total} trades</span>
+          <span class="text-xs text-red mono">${ss.wr}% WR</span>
+          <span class="text-xs mono ${ss.pnl>=0?'text-green':'text-red'}">${ss.pnl>=0?'+':''}${ss.pnl.toFixed(0)}</span>
+        </div>
+      </div>
+      <div class="prog"><div class="prog-fill red" style="width:${(ss.total/total*100).toFixed(0)}%"></div></div>
+    </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="display:flex;height:20px;border-radius:8px;overflow:hidden;gap:2px">
+        <div style="flex:${ls.total||0};background:var(--green);opacity:.7;min-width:${ls.total?4:0}px"></div>
+        <div style="flex:${ss.total||0};background:var(--red);opacity:.7;min-width:${ss.total?4:0}px"></div>
+      </div>
+      <div class="row gap3 mt1" style="justify-content:center">
+        <span style="font-size:10px;color:var(--green)">■ Long ${ls.total}</span>
+        <span style="font-size:10px;color:var(--red)">■ Short ${ss.total}</span>
+      </div>
+    </div>`;
+}
+
 function renderLossCauses(lt){
   const el=$('loss-causes-list');
   if(!lt.length){el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">No losses recorded</div></div>';return;}
   const map={};
   lt.forEach(t=>{
-    // Support both old string and new array format for mistakes
     const m=t.mistakes||t.mistake;
     if(Array.isArray(m))m.forEach(x=>{if(x&&x!=='None'&&x!=='')map[x]=(map[x]||0)+1;});
     else if(m&&m!=='None'&&m!=='')map[m]=(map[m]||0)+1;
@@ -1379,7 +1627,6 @@ $('log-filter-result').addEventListener('change',()=>{
 });
 
 function getMistakeDisplay(t){
-  // Support both old string and new array
   const m=t.mistakes||t.mistake;
   if(Array.isArray(m))return m.filter(x=>x&&x!=='None').join(', ')||'—';
   return m||'—';
@@ -1434,17 +1681,13 @@ function clearTradeForm(){
   ['t-asset','t-sl','t-tp','t-rr-plan','t-rr-actual','t-risk','t-pnl','t-lesson','t-loss-notes',
    'pm-t-dol','pm-t-ff','pm-t-notes','pm-t-trade-review'].forEach(id=>{const el=$(id);if(el)el.value='';});
   $('t-account').selectedIndex=0;
-  // Single-select groups
   ['t_direction','t_result','t_entry_model','t_session','t_opening',
    'pm_htf_bias','pm_profile_type','pm_key_level','pm_outcome','pm_ohlc','pm_session','pm_pd',
    'pm_ltf_liq','pm_ltf_kl','pm_ltf_candle','pm_ltf_entry','pm_psp'].forEach(g=>resetSingle(g));
-  // Multi-select groups — clear all
   ['t_emotion_before','t_emotion_during','t_mistake'].forEach(g=>{
     document.querySelectorAll(`[data-group="${g}"]`).forEach(e=>e.classList.remove('on'));
   });
-  // Reset three-way PM liquidity toggle
   document.querySelectorAll('[data-group="pm_liq"]').forEach(b=>b.classList.remove('active'));
-  // Reset confluences multi-select
   document.querySelectorAll('#t-confluences-check .chk').forEach(el=>el.classList.remove('on'));
   $('loss-notes-section').style.display='none';
   $('pm-existing-notice').style.display='none';
@@ -1509,24 +1752,19 @@ async function editTrade(id){
   setSingle('t_entry_model',t.entry_model||'');
   setSingle('t_session',t.session||'');
   setSingle('t_opening',t.opening||'');
-  // Multi-select: emotions and mistakes — support both old string and new array
   const eb=t.emotions_before||t.emotion_before;
   if(Array.isArray(eb))setCheckedGroup('t_emotion_before',eb);
   else if(eb)setCheckedGroup('t_emotion_before',[eb]);
-
   const ed=t.emotions_during||t.emotion_during;
   if(Array.isArray(ed))setCheckedGroup('t_emotion_during',ed);
   else if(ed)setCheckedGroup('t_emotion_during',[ed]);
-
   const mk=t.mistakes||t.mistake;
   if(Array.isArray(mk))setCheckedGroup('t_mistake',mk);
   else if(mk)setCheckedGroup('t_mistake',[mk]);
-
   $('t-lesson').value=t.lesson||'';
   $('t-loss-notes').value=t.loss_notes||'';
   if(t.result==='Loss')$('loss-notes-section').style.display='block';
   setChecked('t-confluences-check',t.confluences||[]);
-  // Load PM data if linked
   if(t.pm_linked){
     const pmLogs=await getAll('pre_market_logs');
     const pm=pmLogs.find(l=>l.id===t.pm_linked)||pmLogs.find(l=>l.date===t.trade_date);
@@ -1565,10 +1803,7 @@ async function deleteTrade(id){
 $('save-trade-btn').addEventListener('click',async()=>{
   const asset=$('t-asset').value.trim();
   if(!asset)return toast('Asset/pair is required','error');
-
   const entryDate=$('t-entry-time').value.split('T')[0];
-
-  // Build PM data — Opening Prices now saved in PM
   const pmData={
     date:entryDate,
     htf_bias:getSingle('pm_htf_bias'),
@@ -1579,7 +1814,7 @@ $('save-trade-btn').addEventListener('click',async()=>{
     ohlc:getSingle('pm_ohlc'),
     session:getSingle('pm_session'),
     pd:getSingle('pm_pd'),
-    opening:getSingle('t_opening'),  // Opening Prices now part of PM
+    opening:getSingle('t_opening'),
     dol:$('pm-t-dol').value,
     ff:$('pm-t-ff').value,
     notes:$('pm-t-notes').value,
@@ -1590,12 +1825,10 @@ $('save-trade-btn').addEventListener('click',async()=>{
     psp:getSingle('pm_psp'),
     trade_review:$('pm-t-trade-review').value
   };
-
   try{
     const pmLogs=await getAll('pre_market_logs');
     const existingPm=pmLogs.find(l=>l.date===entryDate);
     let pmId='';
-
     if(existingPm){
       await updateItem('pre_market_logs',existingPm.id,pmData);
       pmId=existingPm.id;
@@ -1603,8 +1836,6 @@ $('save-trade-btn').addEventListener('click',async()=>{
       const pmRef=await addItem('pre_market_logs',pmData);
       pmId=pmRef.id;
     }
-
-    // Build trade data — emotions/mistakes now stored as arrays
     const tradeData={
       asset,
       direction:getSingle('t_direction'),
@@ -1621,7 +1852,6 @@ $('save-trade-btn').addEventListener('click',async()=>{
       entry_model:getSingle('t_entry_model'),
       session:getSingle('t_session'),
       opening:getSingle('t_opening'),
-      // Multi-select: stored as arrays
       emotions_before:getCheckedGroup('t_emotion_before'),
       emotions_during:getCheckedGroup('t_emotion_during'),
       mistakes:getCheckedGroup('t_mistake'),
@@ -1631,7 +1861,6 @@ $('save-trade-btn').addEventListener('click',async()=>{
       pm_linked:pmId,
       trade_date:entryDate
     };
-
     if(editingTradeId){
       await updateItem('trades',editingTradeId,tradeData);
       toast('Trade & pre-market updated','success');
@@ -1639,7 +1868,6 @@ $('save-trade-btn').addEventListener('click',async()=>{
       await addItem('trades',tradeData);
       toast('Trade & pre-market saved','success');
     }
-
     closeModal('trade-modal');
     loadTradeLog();
     loadDashboard();
@@ -1819,7 +2047,6 @@ async function deleteMonthlyReview(id){
   await deleteItem('monthly_reviews',id);toast('Deleted','success');loadMonthlyReviewList();
 }
 
-// Rules
 async function loadRules(){
   const rules=await getAll('rules');
   const el=$('rules-list');
@@ -1865,7 +2092,6 @@ async function loadPsychology(){
     tradesEl.innerHTML=`<div class="tbl-wrap"><table>
       <thead><tr><th>Date</th><th>Asset</th><th>Result</th><th>Emotion Before</th><th>Emotion During</th><th>Confluences</th><th>Lesson</th></tr></thead>
       <tbody>${sorted.map(t=>{
-        // Support both array and string for emotions
         const eb=Array.isArray(t.emotions_before)?t.emotions_before.join(', '):(t.emotion_before||'—');
         const ed=Array.isArray(t.emotions_during)?t.emotions_during.join(', '):(t.emotion_during||'—');
         return`<tr>
@@ -1929,22 +2155,31 @@ function renderAccountList(elId,accounts,type){
     const pct=a.size?((a.equity/a.size)*100).toFixed(0):0;
     const eq=parseFloat(a.equity)||0,sz=parseFloat(a.size)||0;
     const diff=eq-sz;
+    const isFunded=type==='funded';
+    // For funded: show stage only if not Instant
+    const showStage=isFunded&&a.account_type!=='Instant'&&a.stage;
     return`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px">
       <div class="row-between" style="margin-bottom:14px">
         <div>
           <div style="font-size:14px;font-weight:700">${a.name||'—'}</div>
-          <div class="text-xs text-muted mt1">${a.account_type||''} · ${a.stage||''} · ${a.leverage||''}</div>
+          <div class="text-xs text-muted mt1">
+            ${a.account_type||''}
+            ${showStage?'· '+a.stage:''}
+            ${a.leverage?'· '+a.leverage:''}
+            <span class="account-type-tag ${isFunded?'tag-funded':'tag-live'}" style="margin-left:6px">${isFunded?'Prop':'Live'}</span>
+          </div>
         </div>
         <div class="row gap2">
           <button class="btn btn-xs btn-ghost" onclick="editAccount('${a.id}','${type}')">Edit</button>
           <button class="btn btn-xs btn-danger" onclick="deleteAccount('${a.id}','${type}')">Del</button>
         </div>
       </div>
-      <div class="g2" style="gap:10px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr${isFunded?'':''};gap:10px;margin-bottom:12px">
         <div><div class="flabel">Account Size</div><div class="fw6 mono">$${Number(a.size||0).toLocaleString()}</div></div>
         <div><div class="flabel">Current Equity</div><div class="fw6 mono ${diff>=0?'text-green':'text-red'}">$${Number(a.equity||0).toLocaleString()}</div></div>
         <div><div class="flabel">Max Daily Loss</div><div class="mono text-red">$${Number(a.daily_loss||0).toLocaleString()}</div></div>
-        <div><div class="flabel">P/L from Start</div><div class="fw6 mono ${diff>=0?'text-green':'text-red'}">${diff>=0?'+':''}$${diff.toFixed(0)}</div></div>
+        <div><div class="flabel">Max Overall Loss</div><div class="mono" style="color:var(--amber)">$${Number(a.overall_loss||0).toLocaleString()}</div></div>
+        <div style="grid-column:1/-1"><div class="flabel">P/L from Start</div><div class="fw6 mono ${diff>=0?'text-green':'text-red'}">${diff>=0?'+':''}$${diff.toFixed(0)}</div></div>
       </div>
       <div class="prog"><div class="prog-fill ${pct>=100?'blue':pct>=80?'':'amber'}" style="width:${Math.min(pct,100)}%"></div></div>
       <div class="text-xs text-muted mt1">${pct}% of target</div>
@@ -1956,13 +2191,40 @@ $('add-funded-btn').addEventListener('click',()=>openAssetModal('funded',null));
 $('add-live-btn').addEventListener('click',()=>openAssetModal('live',null));
 
 function openAssetModal(type,data){
-  assetType=type;editingAssetId=data?.id||null;
-  $('asset-modal-title').textContent=(data?'Edit':'Add')+' '+(type==='funded'?'Funded':'Live')+' Account';
-  $('a-type').value=type;$('a-name').value=data?.name||'';$('a-size').value=data?.size||'';
-  $('a-account-type').value=data?.account_type||'Instant';$('a-stage').value=data?.stage||'Phase 1';
-  $('a-leverage').value=data?.leverage||'';$('a-equity').value=data?.equity||'';$('a-daily-loss').value=data?.daily_loss||'';
+  assetType=type;
+  editingAssetId=data?.id||null;
+
+  const isFunded=type==='funded';
+  $('asset-modal-title').textContent=(data?'Edit':'Add')+' '+(isFunded?'Funded':'Live')+' Account';
+  $('a-type').value=type;
+
+  // Show/hide the right field set
+  $('funded-fields').style.display=isFunded?'block':'none';
+  $('live-fields').style.display=isFunded?'none':'block';
+
+  if(isFunded){
+    $('a-name-funded').value=data?.name||'';
+    $('a-size-funded').value=data?.size||'';
+    $('a-account-type-funded').value=data?.account_type||'Instant';
+    $('a-stage-funded').value=data?.stage||'Phase 1';
+    $('a-leverage-funded').value=data?.leverage||'';
+    $('a-equity-funded').value=data?.equity||'';
+    $('a-daily-loss-funded').value=data?.daily_loss||'';
+    $('a-overall-loss-funded').value=data?.overall_loss||'';
+    // Trigger stage visibility
+    onFundedTypeChange();
+  }else{
+    $('a-name-live').value=data?.name||'';
+    $('a-size-live').value=data?.size||'';
+    $('a-account-type-live').value=data?.account_type||'Standard';
+    $('a-leverage-live').value=data?.leverage||'';
+    $('a-equity-live').value=data?.equity||'';
+    $('a-daily-loss-live').value=data?.daily_loss||'';
+    $('a-overall-loss-live').value=data?.overall_loss||'';
+  }
   openModal('asset-modal');
 }
+
 async function editAccount(id,type){
   const col=type==='funded'?'funded_accounts':'live_accounts';
   const accounts=await getAll(col);
@@ -1974,13 +2236,43 @@ async function deleteAccount(id,type){
   const col=type==='funded'?'funded_accounts':'live_accounts';
   await deleteItem(col,id);toast('Deleted','success');loadAssets();
 }
+
 $('save-asset-btn').addEventListener('click',async()=>{
-  const col=assetType==='funded'?'funded_accounts':'live_accounts';
-  const data={name:$('a-name').value,size:$('a-size').value,account_type:$('a-account-type').value,stage:$('a-stage').value,leverage:$('a-leverage').value,equity:$('a-equity').value,daily_loss:$('a-daily-loss').value};
+  const isFunded=$('a-type').value==='funded';
+  const col=isFunded?'funded_accounts':'live_accounts';
+  let data={};
+  if(isFunded){
+    const acType=$('a-account-type-funded').value;
+    data={
+      name:$('a-name-funded').value,
+      size:$('a-size-funded').value,
+      account_type:acType,
+      // Only save stage if not Instant
+      stage:acType!=='Instant'?$('a-stage-funded').value:'',
+      leverage:$('a-leverage-funded').value,
+      equity:$('a-equity-funded').value,
+      daily_loss:$('a-daily-loss-funded').value,
+      overall_loss:$('a-overall-loss-funded').value
+    };
+  }else{
+    data={
+      name:$('a-name-live').value,
+      size:$('a-size-live').value,
+      account_type:$('a-account-type-live').value,
+      leverage:$('a-leverage-live').value,
+      equity:$('a-equity-live').value,
+      daily_loss:$('a-daily-loss-live').value,
+      overall_loss:$('a-overall-loss-live').value
+    };
+  }
   if(editingAssetId)await updateItem(col,editingAssetId,data);
   else await addItem(col,data);
-  toast('Account saved','success');closeModal('asset-modal');loadAssets();
-  const funded=await getAll('funded_accounts');const live=await getAll('live_accounts');
+  toast('Account saved','success');
+  closeModal('asset-modal');
+  loadAssets();
+  // Refresh account dropdown in trade modal
+  const funded=await getAll('funded_accounts');
+  const live=await getAll('live_accounts');
   _accounts=[...funded.map(a=>({...a,type:'funded'})),...live.map(a=>({...a,type:'live'}))];
   $('t-account').innerHTML='<option value="">Select...</option>'+_accounts.map(a=>`<option value="${a.id}">${a.name} (${a.type})</option>`).join('');
 });
